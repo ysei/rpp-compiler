@@ -13,7 +13,7 @@ LDFLAGS = `llvm-config --ldflags $(LLVM_MODULES)`
 LIBS = `llvm-config --libs $(LLVM_MODULES)`
 
 clean:
-	$(RM) -rf parser.cpp parser.hpp parser lexer.cpp $(OBJS)
+	$(RM) -rf parser.cpp parser.hpp rpp lexer.cpp $(OBJS)
 
 parser.cpp: parser.y
 	bison -d -o $@ $^
