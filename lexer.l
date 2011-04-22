@@ -1,5 +1,6 @@
 %{
 #include <string>
+#include "parser.hpp"
 
 extern "C" int yywrap(void) { }
 #define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
