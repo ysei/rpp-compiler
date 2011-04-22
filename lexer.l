@@ -1,6 +1,6 @@
 %{
 #include <string.h>
-int yywrap() { }
+extern "C" int yywrap(void) { }
 %}
 
 %%
