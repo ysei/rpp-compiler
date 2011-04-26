@@ -10,11 +10,23 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/Constants.h>
 #include <llvm/Type.h>
+#include <llvm/Function.h>
+#include <llvm/DerivedTypes.h>
+#include <llvm/support/IRBuilder.h>
+#include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/PassManager.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
 
 using namespace llvm;
 using namespace std;
 
 class NBlock;
+class NStatement;
+class NExpression;
+
+typedef vector<NStatement *> StatementList;
+typedef vector<NExpression *> ExpressionList;
 
 class CodeGenBlock {
 public:
@@ -50,6 +62,12 @@ public:
         blocks.push(new CodeGenBlock());
         blocks.top()->block = block;
     }
+    
+    void popBlock() {
+        CodeGenBlock *top = blocks.top();
+        blocks.top();
+        delete top;
+    }
 };
 
 class Node {
@@ -59,6 +77,9 @@ public:
 };
 
 class NExpression : public Node {
+};
+
+class NStatement : public Node {
 };
 
 class NInteger : public NExpression {
@@ -73,6 +94,13 @@ public:
     double value;
     NDouble(double value) : value(value) { }
     virtual Value* codeGen(CodeGenContext& context);
+};
+
+class NBlock : public NExpression {
+public:
+    StatementList statements;
+    NBlock() { }
+    virtual Value * codeGen(CodeGenContext& context);  
 };
 
 #endif // AST_H__
