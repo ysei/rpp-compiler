@@ -36,7 +36,7 @@ program : expr
         ;
 
 expr    : expr comparison expr { printf("Found operator\n"); }
-        | numeric { printf("Found number\n"}
+        | numeric { printf("Found number\n"); }
         ;
 
 comparison : TCEQ | TCNE | TCLT | TCLE | TCGT | TCGE

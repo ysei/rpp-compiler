@@ -3,6 +3,7 @@ all: rpp
 
 OBJS = parser.o \
        lexer.o \
+       ast.o \
        main.o
 
 
