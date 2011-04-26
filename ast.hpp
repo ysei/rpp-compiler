@@ -100,7 +100,15 @@ class NBlock : public NExpression {
 public:
     StatementList statements;
     NBlock() { }
-    virtual Value * codeGen(CodeGenContext& context);  
+    virtual Value * codeGen(CodeGenContext& context);
+};
+
+class NExpressionStatement : public NStatement {
+public:
+    NExpression& expression;
+    NExpressionStatement(NExpression& expression)
+        : expression(expression) { }
+    virtual Value * codeGen(CodeGenContext& context);
 };
 
 #endif // AST_H__

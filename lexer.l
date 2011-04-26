@@ -1,5 +1,6 @@
 %{
 #include <string>
+#include "ast.hpp"
 #include "parser.hpp"
 
 extern "C" int yywrap(void) { }

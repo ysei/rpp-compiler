@@ -1,7 +1,10 @@
 %{
     #include <stdio.h>
     #include <string>
-
+    #include "ast.hpp"
+    
+    NBlock * programBlock;
+    
     extern int yylex();
 
     void yyerror(const char *s)
@@ -14,7 +17,9 @@
 %union {
     int token;
     std::string *string;
-    void *expr;
+    NBlock *block;
+    NStatement *stmt;
+    NExpression *expr;
 }
 
 %token <string> TIDENTIFIER TINTEGER TDOUBLE
@@ -24,6 +29,8 @@
 
 %type <expr> numeric expr
 %type <token> comparison
+%type <block> program stmts
+%type <stmt> stmt
 
 %left TPLUS TMINUS
 %left TMUL TDIV
@@ -32,7 +39,13 @@
 
 %%
 
-program : expr
+program : stmts { programBlock = $1; }
+        ;
+        
+stmts   : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
+        ;
+
+stmt    : expr { $$ = new NExpressionStatement(*$1); }
         ;
 
 expr    : expr comparison expr { printf("Found operator\n"); }

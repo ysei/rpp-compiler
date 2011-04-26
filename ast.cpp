@@ -57,3 +57,9 @@ Value * NBlock::codeGen(CodeGenContext& context)
     }
     cout << "Creating block" << endl;
 }
+
+Value * NExpressionStatement::codeGen(CodeGenContext& context)
+{
+    cout << "Generating code for expression" << endl;
+    return expression.codeGen(context);
+}
