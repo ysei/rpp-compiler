@@ -8,12 +8,14 @@ using namespace std;
 int yylex();
 extern int yyparse();
 extern NBlock * programBlock;
+void scan_buffer(const char * buf);
 
 int main(int argc, char * argv[])
 {
+    InitializeNativeTarget();
+    scan_buffer("2 + 3");
     yyparse();
     cout << programBlock << endl;
-    InitializeNativeTarget();
     CodeGenContext context;
     context.generateCode(*programBlock);
     context.runCode();

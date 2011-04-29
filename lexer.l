@@ -6,6 +6,10 @@
 extern "C" int yywrap(void) { }
 #define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
 #define TOKEN(t) (yylval.token = t)
+void scan_buffer(const char * buf)
+{
+    yy_scan_string(buf);
+}
 %}
 
 %%

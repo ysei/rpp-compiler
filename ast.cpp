@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <llvm/ExecutionEngine/JIT.h>
 #include "ast.hpp"
 #include "parser.hpp"
 
@@ -28,14 +29,18 @@ void CodeGenContext::generateCode(NBlock& root)
 
 GenericValue CodeGenContext::runCode()
 {
-    cout << "Running code...\n" << module;
-    printf("\n%x\n", module);
-    ExecutionEngine *ee = EngineBuilder(module).create();
-    vector<GenericValue> noargs;
-    printf("%x\n", mainFunction);
-    GenericValue v = ee->runFunction(mainFunction, noargs);
-    cout << "Code was run.\n";
-    return v;
+    cout << "Running code..." << endl;
+    string error;
+    ExecutionEngine *ee = EngineBuilder(module).setErrorStr(&error).setEngineKind(EngineKind::JIT).create();
+    if(!error.empty()) {
+        cout << "Can't run the code. Reason: " << error << endl;
+        return GenericValue();
+    } else {
+        vector<GenericValue> noargs;
+        GenericValue v = ee->runFunction(mainFunction, noargs);
+        cout << "Code was run.\n";
+        return v;
+    }
 }
 
 Value * NInteger::codeGen(CodeGenContext& context)
