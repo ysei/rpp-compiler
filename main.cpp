@@ -14,4 +14,9 @@ int main(int argc, char * argv[])
     yyparse();
     cout << programBlock << endl;
     InitializeNativeTarget();
+    CodeGenContext context;
+    context.generateCode(*programBlock);
+    context.runCode();
+    
+    return 0;
 }

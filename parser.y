@@ -48,7 +48,7 @@ stmts   : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
 stmt    : expr { $$ = new NExpressionStatement(*$1); }
         ;
 
-expr    : expr comparison expr { printf("Found operator\n"); }
+        expr    : expr comparison expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
         | numeric { printf("Found number\n"); }
         ;
 
@@ -56,7 +56,7 @@ comparison : TCEQ | TCNE | TCLT | TCLE | TCGT | TCGE
            | TPLUS | TMINUS | TMUL | TDIV
            ;
 
-numeric : TINTEGER
-        | TDOUBLE
+numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
+        | TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
         ;
 %%

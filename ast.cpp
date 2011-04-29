@@ -28,11 +28,14 @@ void CodeGenContext::generateCode(NBlock& root)
 
 GenericValue CodeGenContext::runCode()
 {
-    cout << "Running code...\n";
+    cout << "Running code...\n" << module;
+    printf("\n%x\n", module);
     ExecutionEngine *ee = EngineBuilder(module).create();
     vector<GenericValue> noargs;
+    printf("%x\n", mainFunction);
     GenericValue v = ee->runFunction(mainFunction, noargs);
     cout << "Code was run.\n";
+    return v;
 }
 
 Value * NInteger::codeGen(CodeGenContext& context)
@@ -45,6 +48,30 @@ Value * NDouble::codeGen(CodeGenContext& context)
 {
     cout << "Creating double: " << value << endl;
     return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
+}
+
+Value * NBinaryOperator::codeGen(CodeGenContext& context)
+{
+    cout << "Creating binary operation " << op << endl;
+    Instruction::BinaryOps instr;
+    switch (op) {
+        case TPLUS:
+            instr = Instruction::Add;
+            break;
+        case TMINUS:
+            instr = Instruction::Sub;
+            break;
+        case TMUL:
+            instr = Instruction::Mul;
+            break;
+        case TDIV:
+            instr = Instruction::SDiv;
+            break;
+        default:
+            return NULL;
+    }
+    return BinaryOperator::Create(instr, lhs.codeGen(context),
+        rhs.codeGen(context), "", context.currentBlock());
 }
 
 Value * NBlock::codeGen(CodeGenContext& context)
