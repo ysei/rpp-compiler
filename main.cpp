@@ -13,7 +13,7 @@ void scan_buffer(const char * buf);
 int main(int argc, char * argv[])
 {
     InitializeNativeTarget();
-    scan_buffer("2 + 3");
+    scan_buffer("2 * (3 + 2)");
     yyparse();
     cout << programBlock << endl;
     CodeGenContext context;

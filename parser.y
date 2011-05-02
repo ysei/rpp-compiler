@@ -48,8 +48,9 @@ stmts   : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
 stmt    : expr { $$ = new NExpressionStatement(*$1); }
         ;
 
-        expr    : expr comparison expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
-        | numeric { printf("Found number\n"); }
+expr    : numeric { $$ = $1; }
+        | expr comparison expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
+        | TLPAREN expr TRPAREN  { $$ = $2; }
         ;
 
 comparison : TCEQ | TCNE | TCLT | TCLE | TCGT | TCGE
