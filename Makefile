@@ -25,7 +25,7 @@ lexer.cpp: lexer.l parser.hpp
 	flex -o $@ $^
 
 %.o: %.cpp
-	g++ -c $(CPPFLAGS) -o $@ $<
+	llvm-g++ -c $(CPPFLAGS) -o $@ $<
 
 rpp: $(OBJS)
-	g++ -o $@ $(LDFLAGS) $(OBJS) $(LIBS)
+	llvm-g++ -o $@ $(LDFLAGS) $(OBJS) $(LIBS)

@@ -27,6 +27,7 @@ void CodeGenContext::generateCode(NBlock& root)
     pm.run(*module);
 }
 
+typedef int (*mainFuncType)();
 GenericValue CodeGenContext::runCode()
 {
     cout << "Running code..." << endl;
@@ -34,13 +35,12 @@ GenericValue CodeGenContext::runCode()
     ExecutionEngine *ee = EngineBuilder(module).setErrorStr(&error).setEngineKind(EngineKind::JIT).create();
     if(!error.empty()) {
         cout << "Can't run the code. Reason: " << error << endl;
-        return GenericValue();
     } else {
-        vector<GenericValue> noargs;
-        GenericValue v = ee->runFunction(mainFunction, noargs);
-        cout << "Code was run. Return value: " << v.UIntPairVal.first << v.UIntPairVal.second << endl;
-        return v;
+        void * p = ee->getPointerToFunction(mainFunction);
+        mainFuncType func = (mainFuncType)(p);
+        cout << "Code was run. Return value: " << func() << endl;
     }
+    return GenericValue();
 }
 
 Value * NInteger::codeGen(CodeGenContext& context)
