@@ -11,13 +11,13 @@ void CodeGenContext::generateCode(NBlock& root)
     cout << "Generating code..." << endl;
     
     vector<const Type*> argTypes;
-    FunctionType *ftype = FunctionType::get(Type::getVoidTy(getGlobalContext()), argTypes, false);
+    FunctionType *ftype = FunctionType::get(Type::getInt64Ty(getGlobalContext()), argTypes, false);
     mainFunction = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
     BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", mainFunction, 0);
 
     pushBlock(bblock);
-    root.codeGen(*this);
-    ReturnInst::Create(getGlobalContext(), bblock);
+    Value * returnedValue = root.codeGen(*this);
+    ReturnInst::Create(getGlobalContext(), returnedValue, bblock);
     popBlock();
     
     // Print bytecode
@@ -32,13 +32,15 @@ GenericValue CodeGenContext::runCode()
     cout << "Running code..." << endl;
     string error;
     ExecutionEngine *ee = EngineBuilder(module).setErrorStr(&error).setEngineKind(EngineKind::JIT).create();
+    cout << "asdfasdfasf" << endl;
     if(!error.empty()) {
         cout << "Can't run the code. Reason: " << error << endl;
         return GenericValue();
     } else {
         vector<GenericValue> noargs;
+        cout << "asdf" << endl;
         GenericValue v = ee->runFunction(mainFunction, noargs);
-        cout << "Code was run.\n";
+        cout << "Code was run. Return value: " << v.UIntPairVal.first;
         return v;
     }
 }
@@ -88,6 +90,7 @@ Value * NBlock::codeGen(CodeGenContext& context)
         last = (**it).codeGen(context);
     }
     cout << "Creating block" << endl;
+    return last;
 }
 
 Value * NExpressionStatement::codeGen(CodeGenContext& context)
