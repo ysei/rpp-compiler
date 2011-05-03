@@ -11,7 +11,7 @@ void CodeGenContext::generateCode(NBlock& root)
     cout << "Generating code..." << endl;
     
     vector<const Type*> argTypes;
-    FunctionType *ftype = FunctionType::get(Type::getInt64Ty(getGlobalContext()), argTypes, false);
+    FunctionType *ftype = FunctionType::get(Type::getInt32Ty(getGlobalContext()), argTypes, false);
     mainFunction = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
     BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", mainFunction, 0);
 
@@ -32,15 +32,13 @@ GenericValue CodeGenContext::runCode()
     cout << "Running code..." << endl;
     string error;
     ExecutionEngine *ee = EngineBuilder(module).setErrorStr(&error).setEngineKind(EngineKind::JIT).create();
-    cout << "asdfasdfasf" << endl;
     if(!error.empty()) {
         cout << "Can't run the code. Reason: " << error << endl;
         return GenericValue();
     } else {
         vector<GenericValue> noargs;
-        cout << "asdf" << endl;
         GenericValue v = ee->runFunction(mainFunction, noargs);
-        cout << "Code was run. Return value: " << v.UIntPairVal.first;
+        cout << "Code was run. Return value: " << v.UIntPairVal.first << v.UIntPairVal.second << endl;
         return v;
     }
 }
@@ -48,7 +46,7 @@ GenericValue CodeGenContext::runCode()
 Value * NInteger::codeGen(CodeGenContext& context)
 {
     cout << "Creating integer: " << value << endl;
-    return ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true);
+    return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), value, true);
 }
 
 Value * NDouble::codeGen(CodeGenContext& context)
