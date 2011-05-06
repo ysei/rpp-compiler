@@ -1,8 +1,8 @@
 CC = llvm-g++
 LLVM_MODULES = core jit native
-CPPFLAGS = `llvm-config --cppflags $(LLVM_MODULES)`
-LDFLAGS = `llvm-config --ldflags $(LLVM_MODULES)`
-LIBS = `llvm-config --libs $(LLVM_MODULES)`
+CPPFLAGS = `/usr/local/bin/llvm-config --cppflags $(LLVM_MODULES)` -g
+LDFLAGS = `/usr/local/bin/llvm-config --ldflags $(LLVM_MODULES)`
+LIBS = `/usr/local/bin/llvm-config --libs $(LLVM_MODULES)`
 
 all: rpp
 
