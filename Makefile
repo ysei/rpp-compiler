@@ -15,12 +15,9 @@ SRCS = parser.cpp \
 OBJDIR = .obj
 OBJS := $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
-DEPDIR = .deps
-df = $(DEPDIR)/$(*F)
+DEPS := $(OBJS:%.o=%.d)
 
-DEPS := $(OBJS:%.o=$(DEPDIR)/%.d)
-
--include $(DEPS)
+include $(DEPS)
 
 clean:
 	$(RM) -rf parser.cpp parser.hpp rpp lexer.cpp $(OBJS) 
