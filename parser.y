@@ -2,9 +2,10 @@
     #include <stdio.h>
     #include <string>
     #include "ast.hpp"
-    
+    #include "global.hpp"
+
     NBlock * programBlock;
-    
+
     extern int yylex();
 
     void yyerror(const char *s)
@@ -26,11 +27,12 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV
+%token <token> TIF TELSE TBEGIN TEND TNEWLINE
 
 %type <expr> numeric expr
 %type <token> comparison
 %type <block> program stmts
-%type <stmt> stmt
+%type <stmt> stmt ifstmt
 
 %left TPLUS TMINUS
 %left TMUL TDIV
@@ -41,11 +43,15 @@
 
 program : stmts { programBlock = $1; }
         ;
-        
+
 stmts   : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
         ;
 
+ifstmt  : TIF stmt TBEGIN stmt TELSE stmt TEND { $$ = new NIfStatement(*$2, *$4, *$6); printf("Hello\n"); }
+        ;
+
 stmt    : expr { $$ = new NExpressionStatement(*$1); }
+        | ifstmt
         ;
 
 expr    : numeric { $$ = $1; }

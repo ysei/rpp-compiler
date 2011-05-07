@@ -24,6 +24,7 @@ using namespace std;
 class NBlock;
 class NStatement;
 class NExpression;
+class NExpressionStatement;
 
 typedef vector<NStatement *> StatementList;
 typedef vector<NExpression *> ExpressionList;
@@ -40,29 +41,36 @@ class CodeGenContext {
 
 public:
     Module *module;
+    IRBuilder<> *builder;
+
     CodeGenContext() {
         module = new Module("main", getGlobalContext());
+        builder = new IRBuilder<>(getGlobalContext());
     }
-    
+
+    virtual ~CodeGenContext() {
+        delete builder;
+    }
+
     void generateCode(NBlock& root);
     GenericValue runCode();
-    
+
     map<string, Value*>& locals()
     {
         return blocks.top()->locals;
     }
-    
+
     BasicBlock * currentBlock()
     {
         return blocks.top()->block;
     }
-    
+
     void pushBlock(BasicBlock * block)
     {
         blocks.push(new CodeGenBlock());
         blocks.top()->block = block;
     }
-    
+
     void popBlock() {
         CodeGenBlock *top = blocks.top();
         blocks.top();
@@ -80,6 +88,17 @@ class NExpression : public Node {
 };
 
 class NStatement : public Node {
+};
+
+class NIfStatement : public NStatement {
+public:
+    NStatement& expr;
+    NStatement& thenStmt;
+    NStatement& elseStmt;
+
+    NIfStatement(NStatement& expr1, NStatement& thenStmt1, NStatement& elseStmt1) :
+        expr(expr1), thenStmt(thenStmt1), elseStmt(elseStmt1) {}
+    virtual Value* codeGen(CodeGenContext& context);
 };
 
 class NInteger : public NExpression {

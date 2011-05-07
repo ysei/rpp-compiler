@@ -4,5 +4,5 @@ global.cpp
 global.hpp
 main.cpp
 parser.hpp
-Makefile
 parser.y
+lexer.l

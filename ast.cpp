@@ -9,17 +9,18 @@ using namespace std;
 void CodeGenContext::generateCode(NBlock& root)
 {
     cout << "Generating code..." << endl;
-    
+
     vector<const Type*> argTypes;
     FunctionType *ftype = FunctionType::get(Type::getInt32Ty(getGlobalContext()), argTypes, false);
     mainFunction = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
     BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", mainFunction, 0);
+    builder->SetInsertPoint(bblock);
 
     pushBlock(bblock);
     Value * returnedValue = root.codeGen(*this);
-    ReturnInst::Create(getGlobalContext(), returnedValue, bblock);
+    builder->CreateRet(returnedValue);
     popBlock();
-    
+
     // Print bytecode
     cout << "Code is generated." << endl;
     PassManager pm;
@@ -46,37 +47,34 @@ GenericValue CodeGenContext::runCode()
 Value * NInteger::codeGen(CodeGenContext& context)
 {
     cout << "Creating integer: " << value << endl;
-    return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), value, true);
+    return ConstantInt::get(getGlobalContext(), APInt(32, value));
 }
 
 Value * NDouble::codeGen(CodeGenContext& context)
 {
     cout << "Creating double: " << value << endl;
-    return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
+    return ConstantFP::get(getGlobalContext(), APFloat(value));
 }
 
 Value * NBinaryOperator::codeGen(CodeGenContext& context)
 {
     cout << "Creating binary operation " << op << endl;
-    Instruction::BinaryOps instr;
+
     switch (op) {
         case TPLUS:
-            instr = Instruction::Add;
+            return context.builder->CreateAdd(lhs.codeGen(context), rhs.codeGen(context));
             break;
         case TMINUS:
-            instr = Instruction::Sub;
-            break;
+            return context.builder->CreateSub(lhs.codeGen(context), rhs.codeGen(context));
         case TMUL:
-            instr = Instruction::Mul;
-            break;
+            return context.builder->CreateMul(lhs.codeGen(context), rhs.codeGen(context));
         case TDIV:
-            instr = Instruction::SDiv;
-            break;
+            return context.builder->CreateSDiv(lhs.codeGen(context), rhs.codeGen(context));
         default:
-            return NULL;
+            assert(false);
     }
-    return BinaryOperator::Create(instr, lhs.codeGen(context),
-        rhs.codeGen(context), "", context.currentBlock());
+
+    return NULL;
 }
 
 Value * NBlock::codeGen(CodeGenContext& context)
@@ -95,4 +93,47 @@ Value * NExpressionStatement::codeGen(CodeGenContext& context)
 {
     cout << "Generating code for expression" << endl;
     return expression.codeGen(context);
+}
+
+Value * NIfStatement::codeGen(CodeGenContext& context)
+{
+    cout << "Generating code for if" << endl;
+    Value * exprValue = expr.codeGen(context);
+    if(!exprValue)
+        return NULL;
+
+    exprValue = context.builder->CreateICmpEQ(ConstantInt::get(getGlobalContext(), APInt(32, 0)), exprValue, "ifcond");
+
+    Function * function = context.builder->GetInsertBlock()->getParent();
+    assert(function);
+    BasicBlock * thenBlock = BasicBlock::Create(getGlobalContext(), "then", function);
+    BasicBlock * elseBlock = BasicBlock::Create(getGlobalContext(), "else", function);
+    BasicBlock * mergeBlock = BasicBlock::Create(getGlobalContext(), "ifcond", function);
+
+    context.builder->CreateCondBr(exprValue, thenBlock, elseBlock);
+    context.builder->SetInsertPoint(thenBlock);
+
+    Value * thenValue = thenStmt.codeGen(context);
+    if(!thenValue)
+        return NULL;
+
+    context.builder->CreateBr(mergeBlock);
+    thenBlock = context.builder->GetInsertBlock();
+
+    // else
+    function->getBasicBlockList().push_back(elseBlock);
+    context.builder->SetInsertPoint(elseBlock);
+    Value * elseValue = elseStmt.codeGen(context);
+    if(!elseValue)
+        return NULL;
+    context.builder->CreateBr(mergeBlock);
+    elseBlock = context.builder->GetInsertBlock();
+
+    function->getBasicBlockList().push_back(mergeBlock);
+    context.builder->SetInsertPoint(mergeBlock);
+
+    PHINode * phiNode = context.builder->CreatePHI(Type::getInt32Ty(getGlobalContext()), "iftmp");
+    phiNode->addIncoming(thenValue, thenBlock);
+    phiNode->addIncoming(elseValue, elseBlock);
+    return phiNode;
 }

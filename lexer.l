@@ -2,6 +2,7 @@
 #include <string>
 #include "ast.hpp"
 #include "parser.hpp"
+#include "global.hpp"
 
 extern "C" int yywrap(void) { }
 #define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
@@ -13,7 +14,12 @@ void scan_buffer(const char * buf)
 %}
 
 %%
-[ \t\n]                 ;
+"if"                    return TOKEN(TIF);
+"end"                   return TOKEN(TEND);
+"begin"                 return TOKEN(TBEGIN);
+"else"                  return TOKEN(TELSE);
+"\n"                    /* if(rpp::doNewLine) { rpp::doNewLine = false; return TOKEN(TNEWLINE); } */
+[ \t]                   ;
 [a-zA-Z_][a-zA-Z0-9_]*  SAVE_TOKEN; return TIDENTIFIER;
 [0-9]+\.[0-9]*          SAVE_TOKEN; return TDOUBLE;
 [0-9]+                  SAVE_TOKEN; return TINTEGER;
