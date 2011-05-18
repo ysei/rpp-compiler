@@ -17,7 +17,7 @@ OBJS := $(SRCS:%.cpp=$(OBJDIR)/%.o)
 
 DEPS := $(OBJS:%.o=%.d)
 
-include $(DEPS)
+-include $(DEPS)
 
 clean:
 	$(RM) -rf parser.cpp parser.hpp rpp lexer.cpp $(OBJS) 
