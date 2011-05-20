@@ -37,6 +37,10 @@ stat	:	expr ';'!
 	|	assignment
 	|	ifstmt
 	|	return_stmt
+	|	for_stmt
+	;
+
+for_stmt:	FOR! ID IN! '('? (INT|ID) '..' (INT|ID) ')'? stat* END
 	;
 
 return_stmt
@@ -76,6 +80,10 @@ RETURN	:	'return'
 IF	:	'if'
 	;
 ELSE	:	'else'
+	;
+FOR	:	'for'
+	;
+IN	:	'in'
 	;
 
 ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
