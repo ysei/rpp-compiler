@@ -36,6 +36,7 @@ param_list
 stat	:	expr ';'!
 	|	assignment
 	|	ifstmt
+	|	return_stmt
 	;
 
 return_stmt
