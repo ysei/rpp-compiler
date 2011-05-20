@@ -55,7 +55,7 @@ return_stmt
 	:	RETURN expr ';'
 	;
 	
-ifstmt	:	IF^ expr ';' stat* (ELSE! stat*)? END!
+ifstmt	:	IF expr ';' stat* (ELSE else_stmt=stat*)? END -> ^(IF expr ^(BLOCK stat*) ^(BLOCK $else_stmt)?)
 	;
 
 assignment
