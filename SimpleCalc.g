@@ -55,11 +55,15 @@ return_stmt
 	:	RETURN expr ';'
 	;
 	
-ifstmt	:	IF expr ';' stat* (ELSE else_stmt=stat*)? END -> ^(IF expr ^(BLOCK stat*) ^(BLOCK $else_stmt)?)
+ifstmt	:	IF boolexpr ';' stat* (ELSE else_stmt=stat*)? END -> ^(IF boolexpr ^(BLOCK stat*) ^(BLOCK $else_stmt)?)
 	;
 
 assignment
 	:	ID '='^ expr ';'!
+	;
+
+boolexpr
+	:	expr (('=='^ | '||'^ | '&&'^) expr)? ';'!
 	;
 
 expr 	: 	multexpr (('+'^ | '-'^) multexpr)*
