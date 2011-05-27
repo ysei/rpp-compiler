@@ -42,6 +42,7 @@ stat	:	expr ';' -> expr
 	;
 
 for_stmt:	FOR ID IN '('? range_start '..' range_end ')'? stat* END -> ^(FOR ID ^(RANGE range_start range_end) ^(BLOCK stat*))
+	|	FOR boolexpr';' stat* END -> ^(FOR boolexpr ^(BLOCK stat*))
 	;
 
 range_start
@@ -63,7 +64,7 @@ assignment
 	;
 
 boolexpr
-	:	expr (('=='^ | '||'^ | '&&'^) expr)? ';'!
+	:	expr (('=='^ | '||'^ | '&&'^ | '<'^ | '>'^ | '<=' | '>=') expr)? ';'!
 	;
 
 expr 	: 	multexpr (('+'^ | '-'^) multexpr)*
