@@ -53,7 +53,7 @@ range_end:	(INT|ID)
 	;
 	
 return_stmt
-	:	RETURN expr ';'
+	:	RETURN expr ';' -> ^(RETURN expr)
 	;
 	
 ifstmt	:	IF boolexpr ';' stat* (ELSE else_stmt=stat*)? END -> ^(IF boolexpr ^(BLOCK stat*) ^(BLOCK $else_stmt)?)
