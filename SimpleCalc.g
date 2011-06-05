@@ -27,22 +27,25 @@ prog	:	func_decl*
 	;
 
 func_decl
-	:	DEF ID param_list? stat* END -> ^(FUNC_DEF ID ^(ARG_DEF param_list)? ^(BLOCK stat*))
+	:	DEF ID param_list? NEWLINE block END -> ^(FUNC_DEF ID ^(ARG_DEF param_list)? ^(BLOCK block))
 	;
 
 param_list
 	:	 '(' ID (',' ID)* ')' -> ID+
 	;
 
-stat	:	expr ';' -> expr
+block	:	(stat? NEWLINE!)*
+	;
+
+stat	:	expr NEWLINE -> expr
 	|	assignment
 	|	ifstmt
 	|	return_stmt
 	|	for_stmt
 	;
 
-for_stmt:	FOR ID IN '('? range_start '..' range_end ')'? stat* END -> ^(FOR ID ^(RANGE range_start range_end) ^(BLOCK stat*))
-	|	FOR boolexpr';' stat* END -> ^(FOR boolexpr ^(BLOCK stat*))
+for_stmt:	FOR ID IN '('? range_start '..' range_end ')'? block END -> ^(FOR ID ^(RANGE range_start range_end) ^(BLOCK block))
+	|	FOR boolexpr NEWLINE block END -> ^(FOR boolexpr ^(BLOCK block))
 	;
 
 range_start
@@ -53,18 +56,18 @@ range_end:	(INT|ID)
 	;
 	
 return_stmt
-	:	RETURN expr ';' -> ^(RETURN expr)
+	:	RETURN expr -> ^(RETURN expr)
 	;
 	
-ifstmt	:	IF boolexpr ';' stat* (ELSE else_stmt=stat*)? END -> ^(IF boolexpr ^(BLOCK stat*) ^(BLOCK $else_stmt)?)
+ifstmt	:	IF boolexpr NEWLINE block (ELSE else_stmt=block)? END -> ^(IF boolexpr ^(BLOCK block) ^(BLOCK $else_stmt)?)
 	;
 
 assignment
-	:	ID '='^ expr ';'!
+	:	ID '='^ expr
 	;
 
 boolexpr
-	:	expr (('=='^ | '||'^ | '&&'^ | '<'^ | '>'^ | '<=' | '>=') expr)? ';'!
+	:	expr (('=='^ | '||'^ | '&&'^ | '<'^ | '>'^ | '<=' | '>=') expr)?
 	;
 
 expr 	: 	multexpr (('+'^ | '-'^) multexpr)*
@@ -74,7 +77,7 @@ multexpr:	atom (('*'^ | '/'^) atom)*
 	;
 
 atom	:	INT
-	|	'(' expr ')'
+	|	'('! expr ')'!
 	|	ID ('(' expr_list? ')')?
 	;
 expr_list
@@ -104,14 +107,15 @@ ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
 
 INT :	'0'..'9'+
     ;
-   
-NEWLINE	: '\n'
-	;
+
+NEWLINE : ( '\r\n' // DOS
+	| '\r' // MAC
+        | '\n' // Unix
+        )
+        ;
 
 WS  :   ( ' '
         | '\t'
-        | '\r'
-        | '\n'
         ) {$channel=HIDDEN;}
     ;
 
