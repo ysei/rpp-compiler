@@ -23,7 +23,12 @@ tokens
 	RANGE;
 }
 
-prog	:	func_decl*
+prog	:	(prog_entity)*
+	;
+
+prog_entity
+	:	func_decl
+	|	NEWLINE
 	;
 
 func_decl
