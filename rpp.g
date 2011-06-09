@@ -3,8 +3,8 @@ grammar rpp;
 options
 {
     output  = AST;
-    language = Java;
-    //language = C;
+    //language = Java;
+    language = C;
 
     // If generating an AST (output=AST; option) or specifying a tree walker then
     // also add the following line
