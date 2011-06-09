@@ -28,18 +28,18 @@ prog	:	(prog_entity)*
 
 prog_entity
 	:	func_decl
-	|	NEWLINE
+	|	NEWLINE!
 	;
 
 func_decl
-	:	DEF ID param_list? NEWLINE block END -> ^(FUNC_DEF ID ^(ARG_DEF param_list)? ^(BLOCK block))
+	:	DEF ID param_list? NEWLINE block END -> ^(FUNC_DEF ID ^(ARG_DEF param_list)? ^(BLOCK block?))
 	;
 
 param_list
 	:	 '(' ID (',' ID)* ')' -> ID+
 	;
 
-block	:	(stat? NEWLINE!)*
+block	:	(stat? NEWLINE)* -> stat?
 	;
 
 stat	:	expr NEWLINE -> expr
