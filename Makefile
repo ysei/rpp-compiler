@@ -19,10 +19,19 @@ DEPS := $(OBJS:%.o=%.d)
 -include $(DEPS)
 
 clean:
-	$(RM) -rf rpp rppLexer.h rppLexer.c rppParser.h rppParser.c $(OBJDIR)/*.o $(OBJDIR)/*.d
+	$(RM) -rf rpp rppLexer.h rppLexer.c rppParser.h rppParser.c rpp.tokens $(OBJDIR)/*.o $(OBJDIR)/*.d
 
-rppLexer.c rppLexer.h rppParser.c rppParser.h: rpp.g
-	antlr rpp.g
+rppLexer.h: rpp.g
+	@echo "Generating lexer and parser from " $<
+	@antlr rpp.g
+
+rppLexer.c : rppLexer.h
+
+rppParser.c : rppLexer.h
+
+rppParser.h : rppLexer.h
+
+ast.cpp : rppLexer.h
 
 dirtree:
 	@mkdir -p .obj
@@ -31,14 +40,14 @@ $(OBJDIR)/%.o: %.cpp | dirtree
 	@echo "Compiling " $<
 	@$(CC) -MD -c $(CPPFLAGS) -o $@ $<
 
-$(OBJDIR)/rppLexer.o : rppLexer.c rppLexer.h
+$(OBJDIR)/rppLexer.o: rppLexer.h rppLexer.c
 	@echo "Compiling " $<
-	@$(CC) -c $(CPPFLAGS) -o $@ $<
+	@$(CC) -c $(CPPFLAGS) -o $(OBJDIR)/rppLexer.o rppLexer.c
 
-$(OBJDIR)/rppParser.o : rppParser.c rppParser.h
+$(OBJDIR)/rppParser.o: rppParser.h rppParser.c
 	@echo "Compiling " $<
-	@$(CC) -c $(CPPFLAGS) -o $@ $<
+	@$(CC) -c $(CPPFLAGS) -o $(OBJDIR)/rppParser.o rppParser.c
 
-rpp: $(OBJS) $(OBJDIR)/rppParser.o $(OBJDIR)/rppLexer.o rppLexer.o
+rpp: $(OBJS) $(OBJDIR)/rppLexer.o $(OBJDIR)/rppParser.o
 	@echo "Linking..."
-	@$(CC) -o $@ $(LDFLAGS) $(OBJS) .obj/rppLexer.o .obj/rppParser.o  $(LIBS)
+	@$(CC) -o $@ $(LDFLAGS) $(OBJS) $(OBJDIR)/rppLexer.o $(OBJDIR)/rppParser.o  $(LIBS)
