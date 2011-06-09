@@ -64,7 +64,7 @@ return_stmt
 	:	RETURN expr -> ^(RETURN expr)
 	;
 	
-ifstmt	:	IF boolexpr NEWLINE block (ELSE else_stmt=block)? END -> ^(IF boolexpr ^(BLOCK block) ^(BLOCK $else_stmt)?)
+ifstmt	:	IF boolx NEWLINE block (ELSE else_stmt=block)? END -> ^(IF boolx ^(BLOCK block) ^(BLOCK $else_stmt)?)
 	;
 
 assignment
@@ -73,6 +73,17 @@ assignment
 
 boolexpr
 	:	expr (('=='^ | '||'^ | '&&'^ | '<'^ | '>'^ | '<=' | '>=') expr)?
+	;
+	
+boolx	:	eqexpr (('&&'^ | '||'^) eqexpr)*
+	;
+
+eqexpr	:	boolatom (('=='^ | '>'^ | '<'^ | '<='^ | '>=') boolatom)*
+	;
+
+boolatom:	INT
+	|	ID
+	|	'('! boolx ')'!
 	;
 
 expr 	: 	multexpr (('+'^ | '-'^) multexpr)*
