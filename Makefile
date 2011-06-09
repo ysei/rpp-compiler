@@ -19,7 +19,7 @@ DEPS := $(OBJS:%.o=%.d)
 -include $(DEPS)
 
 clean:
-	$(RM) -rf rpp rppLexer.h rppLexer.c rppParser.h rppParser.c $(OBJS) 
+	$(RM) -rf rpp rppLexer.h rppLexer.c rppParser.h rppParser.c $(OBJDIR)/*.o $(OBJDIR)/*.d
 
 rppLexer.c rppLexer.h rppParser.c rppParser.h: rpp.g
 	antlr rpp.g
