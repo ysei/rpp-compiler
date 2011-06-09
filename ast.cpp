@@ -2,7 +2,7 @@
 #include <vector>
 #include <llvm/ExecutionEngine/JIT.h>
 #include "ast.hpp"
-#include "parser.hpp"
+#include "rppLexer.h"
 
 using namespace std;
 
@@ -60,6 +60,7 @@ Value * NBinaryOperator::codeGen(CodeGenContext& context)
 {
     cout << "Creating binary operation " << op << endl;
 
+/*
     switch (op) {
         case TPLUS:
             return context.builder->CreateAdd(lhs.codeGen(context), rhs.codeGen(context));
@@ -73,7 +74,7 @@ Value * NBinaryOperator::codeGen(CodeGenContext& context)
         default:
             assert(false);
     }
-
+*/
     return NULL;
 }
 

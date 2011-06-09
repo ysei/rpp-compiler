@@ -5,4 +5,6 @@ lexer.cpp
 parser.cpp
 parser.hpp
 /output
-
+rppLexer.*
+rppParser.*
+rpp.tokens

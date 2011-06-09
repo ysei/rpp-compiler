@@ -8,8 +8,7 @@ options
 
     // If generating an AST (output=AST; option) or specifying a tree walker then
     // also add the following line
-    //
-    ASTLabelType=CommonTree;
+    // ASTLabelType=CommonTree;
 }
 
 tokens
