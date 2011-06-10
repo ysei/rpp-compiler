@@ -5,6 +5,8 @@
 #include "ast.hpp"
 #include "rppLexer.h"
 #include "rppParser.h"
+#include <antlr3basetree.h>
+#include <antlr3basetreeadaptor.h>
 
 using namespace std;
 
@@ -26,8 +28,8 @@ def main
     puts k
 end
 
-
 */
+
 int main(int argc, char * argv[])
 {
     argc = argc;
@@ -41,7 +43,7 @@ int main(int argc, char * argv[])
     pANTLR3_COMMON_TOKEN_STREAM tokenStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
     prppParser parser = rppParserNew(tokenStream);
 
-/*
+    /*
     pANTLR3_COMMON_TOKEN t;
     do
     {
@@ -54,23 +56,23 @@ int main(int argc, char * argv[])
     }
     while (t == NULL || t->getType(t) != ANTLR3_TOKEN_EOF);
 */
-    parser->prog(parser);
+    rppParser_prog_return prog;
+    prog = parser->prog(parser);
+
+    if (parser->pParser->rec->state->errorCount > 0)
+    {
+        fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n", parser->pParser->rec->state->errorCount);
+    } else {
+        pANTLR3_COMMON_TREE_NODE_STREAM nodes;
+        nodes = antlr3CommonTreeNodeStreamNewTree(prog.tree, ANTLR3_SIZE_HINT);
+
+        printf("Nodes: %s\n", prog.tree->toStringTree(prog.tree)->chars);
+    }
 
     parser->free(parser);
     tokenStream->free(tokenStream);
     lexer->free(lexer);
     input->free(input);
 
-
-    //scan_buffer("if 20 + 30 begin 2 + 3 else 10 + 20 end");
-    //scan_buffer("if 0 begin 30 else 40 end");
-    /*
-    scan_buffer("x = 10");
-    yyparse();
-    cout << programBlock << endl;
-    CodeGenContext context;
-    context.generateCode(*programBlock);
-    context.runCode();
-    */
     return 0;
 }
