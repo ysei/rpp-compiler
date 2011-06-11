@@ -10,6 +10,7 @@
 #include <antlr3commontreenodestream.h>
 #include <antlr3commontoken.h>
 #include <antlr3string.h>
+#include <vector>
 
 using namespace std;
 
@@ -58,10 +59,33 @@ inline unsigned int getTokenType(pANTLR3_BASE_TREE node)
     return getTokenType(getToken(node));
 }
 
+inline pANTLR3_BASE_TREE getNodeChild(pANTLR3_BASE_TREE node, unsigned int index)
+{
+    return (pANTLR3_BASE_TREE) node->getChild(node, index);
+}
+
+inline unsigned int getNodeChildCount(pANTLR3_BASE_TREE node)
+{
+    return node->getChildCount(node);
+}
+
 void handleFuncDef(pANTLR3_BASE_TREE funcNode)
 {
-    pANTLR3_BASE_TREE funcName = (pANTLR3_BASE_TREE)funcNode->getChild(funcNode, 0);
+    pANTLR3_BASE_TREE funcName = getNodeChild(funcNode, 0);
     printf("funcName: %d, %s\n", getTokenType(funcName), getNodeText(funcName));
+    vector<string> argList;
+    pANTLR3_BASE_TREE argsNode = getNodeChild(funcNode, 1);
+    if(getTokenType(argsNode) == ARG_DEF) {
+        for(int i = 0; i < getNodeChildCount(argsNode); i++){
+            pANTLR3_BASE_TREE argNode = getNodeChild(argsNode, i);
+            unsigned char * argText = getNodeText(argNode);
+            argList.push_back(string((char *)argText, strlen((char *)argText)));
+            printf("Arg: %s\n", argText);
+        }
+    }
+
+    printf("argType: %d\n", getTokenType(argsNode));
+    //if()
 }
 
 void handle(pANTLR3_BASE_TREE node)
@@ -80,9 +104,9 @@ void handle(pANTLR3_BASE_TREE node)
 
 void traverse(pANTLR3_BASE_TREE node)
 {
-    printf("Token: %d\n", node->getToken(node)->type);
+    printf("Token: %d\n", getTokenType(node));
     handle(node);
-    for(int i = 0; i < node->getChildCount(node); i++) {
+    for(int i = 0; i < getNodeChildCount(node); i++) {
         //traverse((pANTLR3_BASE_TREE)node->getChild(node, i));
     }
 }
