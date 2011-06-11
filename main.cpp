@@ -7,6 +7,9 @@
 #include "rppParser.h"
 #include <antlr3basetree.h>
 #include <antlr3basetreeadaptor.h>
+#include <antlr3commontreenodestream.h>
+#include <antlr3commontoken.h>
+#include <antlr3string.h>
 
 using namespace std;
 
@@ -30,6 +33,60 @@ end
 
 */
 
+inline pANTLR3_COMMON_TOKEN getToken(pANTLR3_BASE_TREE node)
+{
+    return node->getToken(node);
+}
+
+inline unsigned char * getTokenText(pANTLR3_COMMON_TOKEN token)
+{
+    return token->getText(token)->chars;
+}
+
+inline unsigned char * getNodeText(pANTLR3_BASE_TREE node)
+{
+    return getTokenText(getToken(node));
+}
+
+inline unsigned int getTokenType(pANTLR3_COMMON_TOKEN token)
+{
+    return token->type;
+}
+
+inline unsigned int getTokenType(pANTLR3_BASE_TREE node)
+{
+    return getTokenType(getToken(node));
+}
+
+void handleFuncDef(pANTLR3_BASE_TREE funcNode)
+{
+    pANTLR3_BASE_TREE funcName = (pANTLR3_BASE_TREE)funcNode->getChild(funcNode, 0);
+    printf("funcName: %d, %s\n", getTokenType(funcName), getNodeText(funcName));
+}
+
+void handle(pANTLR3_BASE_TREE node)
+{
+    pANTLR3_COMMON_TOKEN token = node->getToken(node);
+    printf("Token: %s\n", token->toString(token));
+    switch(token->type) {
+        case FUNC_DEF:
+            printf("Got FUNC_DEF\n");
+            handleFuncDef(node);
+        break;
+    case ARG_DEF:
+        break;
+    }
+}
+
+void traverse(pANTLR3_BASE_TREE node)
+{
+    printf("Token: %d\n", node->getToken(node)->type);
+    handle(node);
+    for(int i = 0; i < node->getChildCount(node); i++) {
+        //traverse((pANTLR3_BASE_TREE)node->getChild(node, i));
+    }
+}
+
 int main(int argc, char * argv[])
 {
     argc = argc;
@@ -43,19 +100,6 @@ int main(int argc, char * argv[])
     pANTLR3_COMMON_TOKEN_STREAM tokenStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
     prppParser parser = rppParserNew(tokenStream);
 
-    /*
-    pANTLR3_COMMON_TOKEN t;
-    do
-    {
-        t = TOKENSOURCE(lexer)->nextToken(TOKENSOURCE(lexer));
-
-        if (t != NULL)
-        {
-            printf(" %s", t->getText(t)->chars);
-        }
-    }
-    while (t == NULL || t->getType(t) != ANTLR3_TOKEN_EOF);
-*/
     rppParser_prog_return prog;
     prog = parser->prog(parser);
 
@@ -66,7 +110,15 @@ int main(int argc, char * argv[])
         pANTLR3_COMMON_TREE_NODE_STREAM nodes;
         nodes = antlr3CommonTreeNodeStreamNewTree(prog.tree, ANTLR3_SIZE_HINT);
 
+
         printf("Nodes: %s\n", prog.tree->toStringTree(prog.tree)->chars);
+
+        //printf("Token: %d\n", prog.tree->getToken(prog.tree)->type);
+        traverse(prog.tree);
+        /*while(nodes->hasNext(nodes)) {
+            pANTLR3_BASE_TREE node = nodes->next(nodes);
+            printf("Node type: %d", node->getType(node));
+        }*/
     }
 
     parser->free(parser);
