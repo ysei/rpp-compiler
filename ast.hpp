@@ -17,6 +17,7 @@
 #include <llvm/PassManager.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/JIT.h>
 
 using namespace llvm;
 using namespace std;

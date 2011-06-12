@@ -12,6 +12,21 @@
 #include <antlr3string.h>
 #include <vector>
 
+#include <llvm/Value.h>
+#include <llvm/Module.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/LLVMContext.h>
+#include <llvm/Constants.h>
+#include <llvm/Type.h>
+#include <llvm/Function.h>
+#include <llvm/DerivedTypes.h>
+#include <llvm/support/IRBuilder.h>
+#include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/PassManager.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/JIT.h>
+
 using namespace std;
 
 int yylex();
@@ -33,6 +48,39 @@ def main
 end
 
 */
+
+class RppCodeGen
+{
+public:
+    RppCodeGen()
+    {
+        module = new Module("main", getGlobalContext());
+        builder = new IRBuilder<>(getGlobalContext());
+    }
+
+    virtual ~RppCodeGen()
+    {
+        delete builder;
+        delete module;
+    }
+
+    Value * codeGenForFunc(const string& funcName, const vector<string> arguments, pANTLR3_BASE_TREE block)
+    {
+        return NULL;
+    }
+
+    void printByteCode()
+    {
+        cout << "Code is generated." << endl;
+        PassManager pm;
+        pm.add(createPrintModulePass(&outs()));
+        pm.run(*module);
+    }
+
+private:
+    Module *module;
+    IRBuilder<> *builder;
+};
 
 inline pANTLR3_COMMON_TOKEN getToken(pANTLR3_BASE_TREE node)
 {
@@ -84,8 +132,18 @@ void handleFuncDef(pANTLR3_BASE_TREE funcNode)
         }
     }
 
+    pANTLR3_BASE_TREE block = getNodeChild(funcNode, 2);
+
+    vector<const Type*> argTypes;
+    FunctionType *ftype = FunctionType::get(Type::getInt32Ty(getGlobalContext()), argTypes, false);
+    Module *module = new Module("main", getGlobalContext());;
+    Function * function = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
+    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
+    IRBuilder<> *builder = new IRBuilder<>(getGlobalContext());
+    builder->SetInsertPoint(bblock);
+
+
     printf("argType: %d\n", getTokenType(argsNode));
-    //if()
 }
 
 void handle(pANTLR3_BASE_TREE node)
