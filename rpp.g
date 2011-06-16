@@ -60,7 +60,7 @@ range_end:	(INT|ID)
 	;
 	
 return_stmt
-	:	RETURN expr -> ^(RETURN expr)
+	:	RETURN expr
 	;
 	
 ifstmt	:	IF boolx NEWLINE block (ELSE else_stmt=block)? END -> ^(IF boolx ^(BLOCK block) ^(BLOCK $else_stmt)?)
