@@ -177,7 +177,7 @@ int main(int argc, char * argv[])
     InitializeNativeTarget();
 
     pANTLR3_UINT8 fileName = (pANTLR3_UINT8) "example.rpp";
-    pANTLR3_INPUT_STREAM input = antlr3AsciiFileStreamNew(fileName);
+    pANTLR3_INPUT_STREAM input = antlr3FileStreamNew(fileName, ANTLR3_ENC_8BIT);
     prppLexer lexer = rppLexerNew(input);
     pANTLR3_COMMON_TOKEN_STREAM tokenStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
     prppParser parser = rppParserNew(tokenStream);
@@ -190,6 +190,7 @@ int main(int argc, char * argv[])
         fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n", parser->pParser->rec->state->errorCount);
     } else {
         pANTLR3_COMMON_TREE_NODE_STREAM nodes;
+        printf("%d", prog.tree);
         nodes = antlr3CommonTreeNodeStreamNewTree(prog.tree, ANTLR3_SIZE_HINT);
 
 
