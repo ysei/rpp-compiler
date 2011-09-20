@@ -28,8 +28,8 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="jruby-1.6.4-p330 facet library" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="test-unit (v2.4.0, jruby-1.6.4-p330) [gem]" level="application" />
     <orderEntry type="library" name="groovy-1.8.2" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="test-unit (v2.4.0, jruby-1.6.4-p330) [gem]" level="application" />
   </component>
 </module>
 
