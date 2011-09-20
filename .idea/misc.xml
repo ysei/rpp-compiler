@@ -10,7 +10,7 @@
     <autodetection-disabled>
       <facet-type id="JRUBY">
         <modules>
-          <module name="jvm-compiler" />
+          <module name="java-compiler" />
         </modules>
       </facet-type>
     </autodetection-disabled>

@@ -3,8 +3,8 @@ grammar rpp;
 options
 {
     output  = AST;
-    //language = Java;
-    language = C;
+    language = Java;
+    //language = C;
 
     // If generating an AST (output=AST; option) or specifying a tree walker then
     // also add the following line
@@ -20,6 +20,14 @@ tokens
 	VAR_DEF;
 	FOR_DEF;
 	RANGE;
+}
+
+@parser::header {
+package org.dubikdev.toycompiler;
+}
+
+@lexer::header{
+package org.dubikdev.toycompiler;
 }
 
 prog	:	(prog_entity)*
@@ -58,11 +66,11 @@ range_start
 
 range_end:	(INT|ID)
 	;
-	
+
 return_stmt
 	:	RETURN expr
 	;
-	
+
 ifstmt	:	IF boolx NEWLINE block (ELSE else_stmt=block)? END -> ^(IF boolx ^(BLOCK block) ^(BLOCK $else_stmt)?)
 	;
 
@@ -73,7 +81,7 @@ assignment
 boolexpr
 	:	expr (('=='^ | '||'^ | '&&'^ | '<'^ | '>'^ | '<=' | '>=') expr)?
 	;
-	
+
 boolx	:	eqexpr (('&&'^ | '||'^) eqexpr)*
 	;
 
@@ -101,7 +109,7 @@ expr_list
 
 BEGIN	:	'begin'
 	;
-	 
+
 DEF 	:	'def'
 	;
 END	:	'end'
