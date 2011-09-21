@@ -6,11 +6,11 @@ options
 	language = Java;
 }
 
-prog: expression_list
+prog: expressions
 	;
 
-expression_list
-	:	expression (NEWLINE expression)*
+expressions
+	:	(NEWLINE)* expression (NEWLINE (expression)?)*
 	;
 	
 expression
