@@ -1,16 +1,55 @@
 grammar calc;
 
+options
+{
+	output = AST;
+	language = Java;
+}
 
-multExpr 
-	:	expr (('*' | '/' expr)*
+prog: expression_list
 	;
 
-expr:	atom (('+' | '-') atom)*	
+expression_list
+	:	expression (NEWLINE expression)*
+	;
+	
+expression
+	:	additiveExpression
 	;
 
-atom:	ID
+additiveExpression
+	:	multiplicativeExpression ( '+' multiplicativeExpression |Ê'-' multiplicativeExpression)*
+	;
+
+multiplicativeExpression
+	:	unaryExpression ( '*' unaryExpression |Ê'/' unaryExpression)*
+	;
+	
+unaryExpression
+	:	ID '(' expression_list_by_comma?  ')'
+	|	ID '[' additiveExpression ']'		
+	|	primaryExpression
+	|	'(' additiveExpression ')'
+	;
+	
+expression_list_by_comma
+	:	expression (',' expression)*
+	;
+	
+primaryExpression
+	:	ID
 	|	INT
 	|   FLOAT
+	;
+	
+argument_expression_list
+	: additiveExpression (',' additiveExpression)*
+	;
+	
+NEWLINE
+	:	'\r'
+	|	'\n'
+	|	'\r\n'
 	;
 
 ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
