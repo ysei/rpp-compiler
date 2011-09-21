@@ -8,13 +8,53 @@ options
 
 prog: expressions
 	;
-
+	
+constant_expression
+	:	conditional_expression
+	;
+	
 expressions
 	:	(NEWLINE)* expression (NEWLINE (expression)?)*
 	;
-	
+
 expression
-	:	additiveExpression
+	:	assignment
+	|	conditional_expression
+	;
+	
+conditional_expression
+	: logical_or_expression
+	;
+
+logical_or_expression
+	: logical_and_expression ('||' logical_and_expression)*
+	;
+
+logical_and_expression
+	: inclusive_or_expression ('&&' inclusive_or_expression)*
+	;
+
+inclusive_or_expression
+	: exclusive_or_expression ('|' exclusive_or_expression)*
+	;
+
+exclusive_or_expression
+	: and_expression ('^' and_expression)*
+	;
+
+and_expression
+	: equality_expression ('&' equality_expression)*
+	;
+equality_expression
+	: relational_expression (('=='|'!=') relational_expression)*
+	;
+
+relational_expression
+	: shift_expression (('<'|'>'|'<='|'>=') shift_expression)*
+	;
+
+shift_expression
+	: additiveExpression (('<<'|'>>') additiveExpression)*
 	;
 
 additiveExpression
@@ -46,6 +86,18 @@ argument_expression_list
 	: additiveExpression (',' additiveExpression)*
 	;
 	
+assignment
+	:	ID '=' expression	
+	;
+lvalue
+	:	UNARY_OPERATOR
+	;	
+
+UNARY_OPERATOR
+	:	'-'
+	|	'!'
+	;
+	
 NEWLINE
 	:	'\r'
 	|	'\n'
@@ -63,6 +115,10 @@ FLOAT
     |   '.' ('0'..'9')+ EXPONENT?
     |   ('0'..'9')+ EXPONENT
     ;
+
+ASSIGNMENT_OPERATOR
+	:	'='
+	;
 
 fragment
 EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
