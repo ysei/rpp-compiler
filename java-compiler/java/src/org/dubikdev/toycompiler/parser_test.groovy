@@ -6,7 +6,7 @@ import org.antlr.runtime.RecognitionException
 import org.antlr.runtime.tree.CommonTree
 
 import org.antlr.runtime.Token
-import static org.dubikdev.toycompiler.rppLexer.*
+import static org.dubikdev.toycompiler.RppLexer.*
 
 class GroovyParserTest extends GroovyTestCase {
 
@@ -17,6 +17,7 @@ class GroovyParserTest extends GroovyTestCase {
     protected void setUp() {
     }
 
+    /*
     public void testFunctionDeclaration() throws Exception {
         def code = """
         def func(x)
@@ -36,6 +37,7 @@ class GroovyParserTest extends GroovyTestCase {
         assertEquals(ARG_DEF, children[1].getToken().getType())
         assertEquals(BLOCK, children[2].getToken().getType())
     }
+    */
 
     List toArray(CommonTree tree) {
         def array = []
@@ -103,9 +105,9 @@ class GroovyParserTest extends GroovyTestCase {
 
     private CommonTree parse(String inputString) throws RecognitionException {
         def inputStream = new ANTLRStringStream(inputString);
-        def lexer = new rppLexer(inputStream);
+        def lexer = new RppLexer(inputStream);
         def tokenStream = new CommonTokenStream(lexer);
-        def parser = new rppParser(tokenStream);
+        def parser = new RppParser(tokenStream);
         return (CommonTree) parser.prog().getTree();
     }
 }
