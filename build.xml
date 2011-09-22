@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project default="Rpp">
+    <property name="antlr3.jar" value="java-compiler/lib/antlr-3.4-complete.jar"/>
+    <property name="ant-antlr3.jar" value="java-compiler/lib/ant-antlr3.jar"/>
+
+    <path id="classpath">
+        <pathelement location="${antlr3.jar}"/>
+        <pathelement location="${ant-antlr3.jar}"/>
+    </path>
+
+    <target name="init">
+
+    </target>
+
+    <target name="antlr" depends="init">
+        <antlr target="Rpp.g" outputdirectory="java-compiler/java/src/org/dubikdev/toycompiler">
+            <classpath refid="classpath"/>
+        </antlr>
+    </target>
+
+    <target name="Rpp">
+        <java jar="${antlr3.jar}" fork="true">
+            <arg value="-o"/>
+            <arg value="java-compiler/java/src/org/dubikdev/toycompiler"/>
+            <arg value="Rpp.g"/>
+        </java>
+    </target>
+</project>
