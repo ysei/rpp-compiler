@@ -17,7 +17,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Unnamed" level="project" />
+    <orderEntry type="library" name="antlr-3.7.4" level="project" />
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
@@ -29,7 +29,6 @@
     </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="jruby-1.6.4-p330 facet library" level="application" />
     <orderEntry type="library" name="groovy-1.8.2" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="test-unit (v2.4.0, jruby-1.6.4-p330) [gem]" level="application" />
   </component>
 </module>
 

@@ -4,6 +4,7 @@ options
 {
     output  = AST;
     language = Java;
+    k = 6;
     //language = C;
 
     // If generating an AST (output=AST; option) or specifying a tree walker then
@@ -35,6 +36,7 @@ prog	:	(prog_entity)*
 
 prog_entity
 	:	func_decl
+	|	stat NEWLINE?
 	|	NEWLINE!
 	;
 
@@ -101,7 +103,7 @@ multexpr:	atom (('*'^ | '/'^) atom)*
 
 atom	:	INT
 	|	'('! expr ')'!
-	|	ID ('(' expr_list? ')')?
+	|	ID (('(' ')') | '(' expr_list? ')')?
 	;
 expr_list
 	:	expr (',' expr)*

@@ -6,6 +6,14 @@ options
 	language = Java;
 }
 
+@parser::header {
+package org.dubikdev.toycompiler;
+}
+
+@lexer::header{
+package org.dubikdev.toycompiler;
+}
+
 prog: expressions
 	;
 	
@@ -69,7 +77,7 @@ unaryExpression
 	:	ID '(' expression_list_by_comma?  ')'
 	|	ID '[' additiveExpression ']'		
 	|	primaryExpression
-	|	'(' additiveExpression ')'
+	|	'(' conditional_expression ')'
 	;
 	
 expression_list_by_comma

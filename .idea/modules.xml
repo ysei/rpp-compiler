@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/java-compiler/java-compiler.iml" filepath="$PROJECT_DIR$/java-compiler/java-compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jruby-parser-tests/jruby-parser-tests.iml" filepath="$PROJECT_DIR$/jruby-parser-tests/jruby-parser-tests.iml" />
     </modules>
   </component>
 </project>

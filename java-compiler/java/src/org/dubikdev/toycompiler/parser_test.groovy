@@ -45,6 +45,7 @@ class GroovyParserTest extends GroovyTestCase {
     class TokenInfo {
         public String text
         public int type
+
         String toString() {
             return text + ", " + type
         }
@@ -70,6 +71,19 @@ class GroovyParserTest extends GroovyTestCase {
         info.text = token.getText()
         info.type = token.getType()
         return info
+    }
+
+    public void testArray() {
+        def one = [10, 5]
+        assertEquals([10, 5], one)
+    }
+
+    public void testNestedArrays() {
+        def one = [10, [5, 4]]
+        assertEquals([10, [5, 4]], one)
+
+        ["+", ["10", "5"]]
+
     }
 
     // x + y
