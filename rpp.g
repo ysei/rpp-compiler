@@ -1,26 +1,9 @@
-grammar rpp;
+grammar Rpp;
 
 options
 {
-    output  = AST;
-    language = Java;
-    k = 6;
-    //language = C;
-
-    // If generating an AST (output=AST; option) or specifying a tree walker then
-    // also add the following line
-    // ASTLabelType=CommonTree;
-}
-
-tokens
-{
-	BLOCK;
-	FUNC_DEF;
-	FUNC_DECL;
-	ARG_DEF;
-	VAR_DEF;
-	FOR_DEF;
-	RANGE;
+	output = AST;
+	language = Java;
 }
 
 @parser::header {
@@ -31,100 +14,102 @@ package org.dubikdev.toycompiler;
 package org.dubikdev.toycompiler;
 }
 
-prog	:	(prog_entity)*
+prog: expressions
+	;
+	
+constant_expression
+	:	conditional_expression
+	;
+	
+expressions
+	:	(NEWLINE)* expression (NEWLINE (expression)?)*
 	;
 
-prog_entity
-	:	func_decl
-	|	stat NEWLINE?
-	|	NEWLINE!
+expression
+	:	assignment
+	|	conditional_expression
+	;
+	
+conditional_expression
+	: logical_or_expression
 	;
 
-func_decl
-	:	DEF ID param_list? NEWLINE block END -> ^(FUNC_DEF ID ^(ARG_DEF param_list)? ^(BLOCK block?))
+logical_or_expression
+	: logical_and_expression ('||' logical_and_expression)*
 	;
 
-param_list
-	:	 '(' ID (',' ID)* ')' -> ID+
+logical_and_expression
+	: inclusive_or_expression ('&&' inclusive_or_expression)*
 	;
 
-block	:	(stat? NEWLINE)* -> stat?
+inclusive_or_expression
+	: exclusive_or_expression ('|' exclusive_or_expression)*
 	;
 
-stat	:	expr NEWLINE -> expr
-	|	assignment
-	|	ifstmt
-	|	return_stmt
-	|	for_stmt
+exclusive_or_expression
+	: and_expression ('^' and_expression)*
 	;
 
-for_stmt:	FOR ID IN '('? range_start '..' range_end ')'? block END -> ^(FOR ID ^(RANGE range_start range_end) ^(BLOCK block))
-	|	FOR boolexpr NEWLINE block END -> ^(FOR boolexpr ^(BLOCK block))
+and_expression
+	: equality_expression ('&' equality_expression)*
+	;
+equality_expression
+	: relational_expression (('=='|'!=') relational_expression)*
 	;
 
-range_start
-	:	(INT|ID)
+relational_expression
+	: shift_expression (('<'|'>'|'<='|'>=') shift_expression)*
 	;
 
-range_end:	(INT|ID)
+shift_expression
+	: additiveExpression (('<<'|'>>') additiveExpression)*
 	;
 
-return_stmt
-	:	RETURN expr
+additiveExpression
+	:	multiplicativeExpression ( '+' multiplicativeExpression |Ê'-' multiplicativeExpression)*
 	;
 
-ifstmt	:	IF boolx NEWLINE block (ELSE else_stmt=block)? END -> ^(IF boolx ^(BLOCK block) ^(BLOCK $else_stmt)?)
+multiplicativeExpression
+	:	unaryExpression ( '*' unaryExpression |Ê'/' unaryExpression)*
 	;
-
+	
+unaryExpression
+	:	ID '(' expression_list_by_comma?  ')'
+	|	ID '[' additiveExpression ']'		
+	|	primaryExpression
+	|	'(' conditional_expression ')'
+	;
+	
+expression_list_by_comma
+	:	expression (',' expression)*
+	;
+	
+primaryExpression
+	:	ID
+	|	INT
+	|   FLOAT
+	;
+	
+argument_expression_list
+	: additiveExpression (',' additiveExpression)*
+	;
+	
 assignment
-	:	ID '='^ expr
+	:	ID '=' expression	
 	;
+lvalue
+	:	UNARY_OPERATOR
+	;	
 
-boolexpr
-	:	expr (('=='^ | '||'^ | '&&'^ | '<'^ | '>'^ | '<=' | '>=') expr)?
+UNARY_OPERATOR
+	:	'-'
+	|	'!'
 	;
-
-boolx	:	eqexpr (('&&'^ | '||'^) eqexpr)*
-	;
-
-eqexpr	:	boolatom (('=='^ | '>'^ | '<'^ | '<='^ | '>=') boolatom)*
-	;
-
-boolatom:	INT
-	|	ID
-	|	'('! boolx ')'!
-	;
-
-expr 	: 	multexpr (('+'^ | '-'^) multexpr)*
-	;
-
-multexpr:	atom (('*'^ | '/'^) atom)*
-	;
-
-atom	:	INT
-	|	'('! expr ')'!
-	|	ID (('(' ')') | '(' expr_list? ')')?
-	;
-expr_list
-	:	expr (',' expr)*
-	;
-
-BEGIN	:	'begin'
-	;
-
-DEF 	:	'def'
-	;
-END	:	'end'
-	;
-RETURN	:	'return'
-	;
-IF	:	'if'
-	;
-ELSE	:	'else'
-	;
-FOR	:	'for'
-	;
-IN	:	'in'
+	
+NEWLINE
+	:	'\r'
+	|	'\n'
+	|	'\r\n'
 	;
 
 ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
@@ -133,14 +118,16 @@ ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
 INT :	'0'..'9'+
     ;
 
-NEWLINE : ( '\r\n' // DOS
-	| '\r' // MAC
-        | '\n' // Unix
-        )
-        ;
-
-WS  :   ( ' '
-        | '\t'
-        ) {$channel=HIDDEN;}
+FLOAT
+    :   ('0'..'9')+ '.' ('0'..'9')* EXPONENT?
+    |   '.' ('0'..'9')+ EXPONENT?
+    |   ('0'..'9')+ EXPONENT
     ;
+
+ASSIGNMENT_OPERATOR
+	:	'='
+	;
+
+fragment
+EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 
