@@ -87,6 +87,18 @@ class GroovyParserTest extends GroovyTestCase {
         testTernaryOperator("!=", "x", "y")
     }
 
+    public void testBitOr() {
+        testTernaryOperator("|", "256", "1")
+    }
+
+    public void testBitAnd() {
+        testTernaryOperator("&", "256", "1")
+    }
+
+    public void testBitXor() {
+        testTernaryOperator("^", "256", "1")
+    }
+
     public void testTernaryOperator(String op, String oper1, String oper2) {
         def code = """
         ${oper1} ${op} ${oper2}
