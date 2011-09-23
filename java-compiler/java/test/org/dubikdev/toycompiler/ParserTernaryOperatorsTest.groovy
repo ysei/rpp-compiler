@@ -9,22 +9,9 @@ import org.antlr.runtime.Token
 
 import org.antlr.runtime.tree.CommonTreeAdaptor
 import org.antlr.runtime.tree.TreeAdaptor
+import org.antlr.runtime.tree.CommonErrorNode
 
-class GroovyParserTest extends GroovyTestCase {
-
-    static final TreeAdaptor adaptor = new CommonTreeAdaptor(){
-        @Override
-        Object create(Token payload) {
-            return new CommonTree(payload)
-        }
-    }
-
-    GroovyParserTest() {
-    }
-
-    @Override
-    protected void setUp() {
-    }
+class ParserTernaryOperatorsTest extends ParserBaseTestCase {
 
     public void testSimpleExpressionTwoNumbersAdd() {
         testTernaryOperator("+", "10", "5")
@@ -116,6 +103,20 @@ class GroovyParserTest extends GroovyTestCase {
         assertEquals("-", ast.getChild(1).getChild(1).getText())
     }
 
+    public void testEmptyFunctionDeclNoParams() {
+        def code = """
+        def func
+        end
+        """
+    }
+
+    public void testEmptyFunctionDeclWithOneParam() {
+        def code = """
+        def func(x)
+        end
+        """
+    }
+
     public void testTernaryOperator(String op, String oper1, String oper2) {
         def code = """
         ${oper1} ${op} ${oper2}
@@ -128,15 +129,5 @@ class GroovyParserTest extends GroovyTestCase {
         assertEquals(2, ast.childCount)
         assertEquals(oper1, ast.getChild(0).getText())
         assertEquals(oper2, ast.getChild(1).getText())
-    }
-
-
-    private CommonTree parse(String inputString) throws RecognitionException {
-        def inputStream = new ANTLRStringStream(inputString);
-        def lexer = new RppLexer(inputStream);
-        def tokenStream = new CommonTokenStream(lexer);
-        def parser = new RppParser(tokenStream);
-        parser.setTreeAdaptor(adaptor)
-        return (CommonTree) parser.prog().getTree();
     }
 }
