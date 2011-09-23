@@ -77,7 +77,7 @@ unaryExpression
 	:	ID '(' expression_list_by_comma?  ')'
 	|	ID '[' additiveExpression ']'
 	|	primaryExpression
-	|	'(' conditional_expression ')'
+	|	'('! conditional_expression ')'!
 	;
 
 expression_list_by_comma

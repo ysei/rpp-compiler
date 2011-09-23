@@ -99,6 +99,23 @@ class GroovyParserTest extends GroovyTestCase {
         testTernaryOperator("^", "256", "1")
     }
 
+    public void testParenthisisExpr() {
+        def code = """
+        10.4 + 4 * (x - 1)
+        """
+
+        def ast = parse(code)
+        assertNotNull("Was not able to parse following code: " + code, ast)
+
+        assertEquals("+", ast.getText())
+        assertEquals(2, ast.childCount)
+        assertEquals("10.4", ast.getChild(0).getText())
+        assertEquals("*", ast.getChild(1).getText())
+        assertEquals(2, ast.getChild(1).childCount)  // 4 * (x - 1)
+        assertEquals("4", ast.getChild(1).getChild(0).getText())
+        assertEquals("-", ast.getChild(1).getChild(1).getText())
+    }
+
     public void testTernaryOperator(String op, String oper1, String oper2) {
         def code = """
         ${oper1} ${op} ${oper2}
