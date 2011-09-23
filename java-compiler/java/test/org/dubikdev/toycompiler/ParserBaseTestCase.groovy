@@ -21,11 +21,23 @@ class ParserBaseTestCase extends GroovyTestCase {
     }
 
     CommonTree parse(String inputString) throws RecognitionException {
+        RppParser parser = createParser(inputString)
+        return (CommonTree) parser.prog().getTree();
+    }
+
+    private RppParser createParser(String inputString) {
         def inputStream = new ANTLRStringStream(inputString);
         def lexer = new RppLexer(inputStream);
         def tokenStream = new CommonTokenStream(lexer);
         def parser = new RppParser(tokenStream);
         parser.setTreeAdaptor(adaptor)
-        return (CommonTree) parser.prog().getTree();
+        return parser
+    }
+
+    void parseAndAssertIfError(String code) {
+        def parser = createParser(code)
+        parser.setTreeAdaptor(adaptor)
+        def ast = parser.prog();
+        assertEquals("Wasn't be able to parse: " + code, 0, parser.getNumberOfSyntaxErrors())
     }
 }

@@ -103,20 +103,6 @@ class ParserTernaryOperatorsTest extends ParserBaseTestCase {
         assertEquals("-", ast.getChild(1).getChild(1).getText())
     }
 
-    public void testEmptyFunctionDeclNoParams() {
-        def code = """
-        def func
-        end
-        """
-    }
-
-    public void testEmptyFunctionDeclWithOneParam() {
-        def code = """
-        def func(x)
-        end
-        """
-    }
-
     public void testTernaryOperator(String op, String oper1, String oper2) {
         def code = """
         ${oper1} ${op} ${oper2}

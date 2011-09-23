@@ -14,7 +14,12 @@ package org.dubikdev.toycompiler;
 package org.dubikdev.toycompiler;
 }
 
-prog: NEWLINE!* ( statement ((NEWLINE!)+ | EOF!))*
+prog: NEWLINE!* ( progElem ((NEWLINE!)+ | EOF!))*
+	;
+
+progElem
+	:	statement
+	|	funcDecl
 	;
 
 statement
@@ -22,19 +27,16 @@ statement
 	;
 
 funcDecl
-	:	'def' ID ('(' expression (',' expression)* ')')? NEWLINE block NEWLINE 'end'
+	: 'def'	ID ('(' expression (',' expression)* ')')? NEWLINE+ block* 'end'
 	;
 
 block
-	:	expressions
+	: assignment NEWLINE+
+	| conditional_expression NEWLINE+
 	;
 
 constant_expression
 	:	conditional_expression
-	;
-
-expressions
-	:	(NEWLINE!)* expression (NEWLINE! (expression)?)*
 	;
 
 expression
