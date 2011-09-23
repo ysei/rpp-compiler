@@ -4,6 +4,7 @@ options
 {
 	output = AST;
 	language = Java;
+	k  = 3;
 }
 
 
@@ -44,11 +45,20 @@ funcBodyElement
 	| conditional_expression NEWLINE!+
 	| 'return'^ constant_expression NEWLINE!+
 	| if_stmt NEWLINE!+
+	| while_stmt NEWLINE!+
 	;	
 
 if_stmt
 	:	'if' expression NEWLINE+ thenBody=funcBody? ('else' NEWLINE+ elseBody=funcBody?)? 'end'
 			-> ^('if' expression ^(BLOCK $thenBody?) ^(BLOCK $elseBody?)?)
+	;
+
+while_stmt
+	: 'while' expression NEWLINE+ funcBody? 'end' -> ^('while' expression ^(BLOCK funcBody?))
+	;	
+	
+range_boundary
+	:	(ID | INT)
 	;
 	
 constant_expression
