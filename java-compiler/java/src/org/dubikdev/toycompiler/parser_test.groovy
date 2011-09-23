@@ -9,8 +9,17 @@ import groovy.json.JsonBuilder
 import org.antlr.runtime.Token
 import static org.dubikdev.toycompiler.RppLexer.*
 import groovy.json.JsonSlurper
+import org.antlr.runtime.tree.CommonTreeAdaptor
+import org.antlr.runtime.tree.TreeAdaptor
 
 class GroovyParserTest extends GroovyTestCase {
+
+    static final TreeAdaptor adaptor = new CommonTreeAdaptor(){
+        @Override
+        Object create(Token payload) {
+            return new CommonTree(payload)
+        }
+    }
 
     GroovyParserTest() {
     }
@@ -19,97 +28,43 @@ class GroovyParserTest extends GroovyTestCase {
     protected void setUp() {
     }
 
-    /*
-    public void testFunctionDeclaration() throws Exception {
-        def code = """
-        def func(x)
-            x = 0
-        end
-        """
-
-        def tree = parse(code);
-        def token = tree.getToken();
-
-        assertEquals(token.getType(), FUNC_DEF);
-
-        def ar = toArray(tree)
-
-        def children = tree.getChildren();
-        assertEquals("func", children[0].getToken().getText())
-        assertEquals(ARG_DEF, children[1].getToken().getType())
-        assertEquals(BLOCK, children[2].getToken().getType())
-    }
-    */
-
-    List toArray(CommonTree tree) {
-        def array = []
-        return toArrayRecursively(tree)
-    }
-
-    class TokenInfo {
-        public String text
-        public int type
-
-        String toString() {
-            return text + ", " + type
-        }
-    }
-
-    List toArrayRecursively(CommonTree tree) {
-        def array = []
-        array.add(getTokenInfo(tree.getToken()))
-
-        if (tree.getChildren() != null) {
-            for (child in tree.getChildren()) {
-                def children = []
-                children = toArrayRecursively(child)
-                array.add(children)
-            }
-        }
-
-        return array
-    }
-
-    TokenInfo getTokenInfo(Token token) {
-        TokenInfo info = new TokenInfo()
-        info.text = token.getText()
-        info.type = token.getType()
-        return info
-    }
-
-    public void testArray() {
-        def one = [10, 5]
-        assertEquals([10, 5], one)
-    }
-
-    public void testNestedArrays() {
-        def one = [10, [5, 4]]
-        assertEquals([10, [5, 4]], one)
-
-        ["+", ["10", "5"]]
-
-    }
-
-    // x + y
-    // [+, [x, y]]
-
     public void testSimpleExpressionTwoNumbersAdd() {
+        testTwoArgumentExpression("+", "10", "5")
+    }
+
+    public void testSimpleExpressionTwoNumbersMinus() {
+        testTwoArgumentExpression("-", "11", "6")
+    }
+
+    public void testSimpleExpressionTwoNumbersMult() {
+        testTwoArgumentExpression("*", "12", "7")
+    }
+
+    public void testSimpleExpressionTwoNumbersDiv() {
+        testTwoArgumentExpression("/", "12", "8")
+    }
+
+    public void testTwoArgumentExpression(String op, String oper1, String oper2) {
         def code = """
-        10+5
+        ${oper1} ${op} ${oper2}
         """
 
-        def tree = parse(code)
-        //assertNotNull("Was not able to parse following code: " + code, tree)
-        //def token = tree.getToken()
+        def ast = parse(code)
+        assertNotNull("Was not able to parse following code: " + code, ast)
 
-        assert true
+        assertEquals(op, ast.getToken().getText())
+        assertEquals(2, ast.childCount)
+        assertEquals(oper1, ast.getChild(0).getText())
+        assertEquals(oper2, ast.getChild(1).getText())
     }
+
 
     private CommonTree parse(String inputString) throws RecognitionException {
         def inputStream = new ANTLRStringStream(inputString);
         def lexer = new RppLexer(inputStream);
         def tokenStream = new CommonTokenStream(lexer);
         def parser = new RppParser(tokenStream);
+        parser.setTreeAdaptor(adaptor)
         return (CommonTree) parser.prog().getTree();
     }
 }

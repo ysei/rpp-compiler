@@ -22,7 +22,7 @@ constant_expression
 	;
 
 expressions
-	:	(NEWLINE)* expression (NEWLINE (expression)?)*
+	:	(NEWLINE!)* expression (NEWLINE! (expression)?)*
 	;
 
 expression
@@ -66,11 +66,11 @@ shift_expression
 	;
 
 additiveExpression
-	:	multiplicativeExpression ( '+' multiplicativeExpression | '-' multiplicativeExpression)*
+	:	multiplicativeExpression ( '+'^ multiplicativeExpression | '-'^ multiplicativeExpression)*
 	;
 
 multiplicativeExpression
-	:	unaryExpression ( '*' unaryExpression | '/' unaryExpression)*
+	:	unaryExpression ( '*'^ unaryExpression | '/'^ unaryExpression)*
 	;
 
 unaryExpression
