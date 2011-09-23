@@ -70,4 +70,50 @@ class ParserFuncTest extends ParserBaseTestCase {
 
         parseAndAssertIfError(code)
     }
+
+    public void testFuncIfCond() {
+        def code = """
+        def func(x)
+            if x == 0
+                f()
+            else
+                z()
+            end
+        end
+        """
+
+        parseAndAssertIfError(code)
+    }
+
+    public void testFuncIfEmpty() {
+        def code = """
+        def func(x)
+            if x == 0
+            end
+        end
+        """
+        parseAndAssertIfError(code)
+    }
+
+    public void testFuncIfElseEmpty() {
+        def code = """
+        def func(x)
+            if x == 0
+            else
+            end
+        end
+        """
+        parseAndAssertIfError(code)
+    }
+
+    public void testFuncIfCondError() {
+        def code = """
+        def func(x)
+            if x == 0
+                fn fn
+            end
+        end
+        """
+        parseAndAssertIfNotError(code)
+    }
 }

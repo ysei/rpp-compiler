@@ -36,8 +36,13 @@ class ParserBaseTestCase extends GroovyTestCase {
 
     void parseAndAssertIfError(String code) {
         def parser = createParser(code)
-        parser.setTreeAdaptor(adaptor)
         def ast = parser.prog();
         assertEquals("Wasn't be able to parse: " + code, 0, parser.getNumberOfSyntaxErrors())
+    }
+
+    void parseAndAssertIfNotError(String code) {
+        def parser = createParser(code)
+        def ast = parser.prog();
+        assertTrue("Shouldn't be able to parse: " + code, parser.getNumberOfSyntaxErrors() > 0)
     }
 }

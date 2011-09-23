@@ -6,6 +6,11 @@ options
 	language = Java;
 }
 
+
+tokens {
+	BLOCK;
+}
+
 @parser::header {
 package org.dubikdev.toycompiler;
 }
@@ -27,15 +32,25 @@ statement
 	;
 
 funcDecl
-	: 'def'	ID ('(' expression (',' expression)* ')')? NEWLINE!+ funcBody* 'end'
+	: 'def'	ID ('(' expression (',' expression)* ')')? NEWLINE!+ funcBody? 'end'!
 	;
 
 funcBody
+	: funcBodyElement+ 
+	;
+	
+funcBodyElement
 	: assignment NEWLINE!+
 	| conditional_expression NEWLINE!+
 	| 'return'^ constant_expression NEWLINE!+
-	;
+	| if_stmt NEWLINE!+
+	;	
 
+if_stmt
+	:	'if' expression NEWLINE+ thenBody=funcBody? ('else' NEWLINE+ elseBody=funcBody?)? 'end'
+			-> ^('if' expression ^(BLOCK $thenBody?) ^(BLOCK $elseBody?)?)
+	;
+	
 constant_expression
 	:	conditional_expression
 	;
