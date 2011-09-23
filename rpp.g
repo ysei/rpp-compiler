@@ -27,12 +27,13 @@ statement
 	;
 
 funcDecl
-	: 'def'	ID ('(' expression (',' expression)* ')')? NEWLINE+ block* 'end'
+	: 'def'	ID ('(' expression (',' expression)* ')')? NEWLINE!+ funcBody* 'end'
 	;
 
-block
-	: assignment NEWLINE+
-	| conditional_expression NEWLINE+
+funcBody
+	: assignment NEWLINE!+
+	| conditional_expression NEWLINE!+
+	| 'return'^ constant_expression NEWLINE!+
 	;
 
 constant_expression
