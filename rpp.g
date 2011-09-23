@@ -54,7 +54,7 @@ and_expression
 	: equality_expression ('&' equality_expression)*
 	;
 equality_expression
-	: relational_expression (('=='|'!=') relational_expression)*
+	: relational_expression (('=='^ | '!='^ ) relational_expression)*
 	;
 
 relational_expression

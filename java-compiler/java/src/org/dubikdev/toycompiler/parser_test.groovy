@@ -79,6 +79,14 @@ class GroovyParserTest extends GroovyTestCase {
         testTernaryOperator(">=", "x", "y")
     }
 
+    public void testTwoVarEqual() {
+        testTernaryOperator("==", "x", "y")
+    }
+
+    public void testTwoVarNotEqual() {
+        testTernaryOperator("!=", "x", "y")
+    }
+
     public void testTernaryOperator(String op, String oper1, String oper2) {
         def code = """
         ${oper1} ${op} ${oper2}
