@@ -35,11 +35,11 @@ conditional_expression
 	;
 
 logical_or_expression
-	: logical_and_expression ('||' logical_and_expression)*
+	: logical_and_expression ('||'^ logical_and_expression)*
 	;
 
 logical_and_expression
-	: inclusive_or_expression ('&&' inclusive_or_expression)*
+	: inclusive_or_expression ('&&'^ inclusive_or_expression)*
 	;
 
 inclusive_or_expression
@@ -58,11 +58,11 @@ equality_expression
 	;
 
 relational_expression
-	: shift_expression (('<'|'>'|'<='|'>=') shift_expression)*
+	: shift_expression (('<'^ | '>'^ | '<='^ | '>='^ ) shift_expression)*
 	;
 
 shift_expression
-	: additiveExpression (('<<'|'>>') additiveExpression)*
+	: additiveExpression (('<<'^| '>>'^) additiveExpression)*
 	;
 
 additiveExpression
@@ -95,7 +95,7 @@ argument_expression_list
 	;
 
 assignment
-	:	ID '=' expression
+	:	ID '='^ expression
 	;
 lvalue
 	:	UNARY_OPERATOR

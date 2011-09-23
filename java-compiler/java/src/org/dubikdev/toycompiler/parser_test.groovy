@@ -4,11 +4,9 @@ import org.antlr.runtime.ANTLRStringStream
 import org.antlr.runtime.CommonTokenStream
 import org.antlr.runtime.RecognitionException
 import org.antlr.runtime.tree.CommonTree
-import groovy.json.JsonBuilder
 
 import org.antlr.runtime.Token
-import static org.dubikdev.toycompiler.RppLexer.*
-import groovy.json.JsonSlurper
+
 import org.antlr.runtime.tree.CommonTreeAdaptor
 import org.antlr.runtime.tree.TreeAdaptor
 
@@ -29,22 +27,59 @@ class GroovyParserTest extends GroovyTestCase {
     }
 
     public void testSimpleExpressionTwoNumbersAdd() {
-        testTwoArgumentExpression("+", "10", "5")
+        testTernaryOperator("+", "10", "5")
     }
 
     public void testSimpleExpressionTwoNumbersMinus() {
-        testTwoArgumentExpression("-", "11", "6")
+        testTernaryOperator("-", "11", "6")
     }
 
     public void testSimpleExpressionTwoNumbersMult() {
-        testTwoArgumentExpression("*", "12", "7")
+        testTernaryOperator("*", "12", "7")
     }
 
     public void testSimpleExpressionTwoNumbersDiv() {
-        testTwoArgumentExpression("/", "12", "8")
+        testTernaryOperator("/", "12", "8")
     }
 
-    public void testTwoArgumentExpression(String op, String oper1, String oper2) {
+    public void testSimpleExpressionTwoNumbersRightShift() {
+        testTernaryOperator(">>", "1", "8")
+    }
+
+    public void testSimpleExpressionTwoNumbersLeftShift() {
+        testTernaryOperator("<<", "256", "4")
+    }
+
+    public void testAssignVarAndNumber() {
+        testTernaryOperator("=", "x", "8")
+    }
+
+    public void testTwoVarAnd() {
+        testTernaryOperator("&&", "x", "y")
+    }
+
+    public void testTwoVarOr() {
+        testTernaryOperator("||", "x", "y")
+    }
+
+    public void testTwoVarLess() {
+        testTernaryOperator("<", "x", "y")
+    }
+
+    public void testTwoVarGreater() {
+        testTernaryOperator(">", "x", "y")
+    }
+
+
+    public void testTwoVarLessEqual() {
+        testTernaryOperator("<=", "x", "y")
+    }
+
+    public void testTwoVarGreateEqualr() {
+        testTernaryOperator(">=", "x", "y")
+    }
+
+    public void testTernaryOperator(String op, String oper1, String oper2) {
         def code = """
         ${oper1} ${op} ${oper2}
         """
