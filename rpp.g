@@ -128,6 +128,7 @@ primaryExpression
 	:	ID
 	|	INT
 	|   FLOAT
+	|	STRING
 	;
 
 argument_expression_list
@@ -164,6 +165,23 @@ FLOAT
     |   ('0'..'9')+ EXPONENT
     ;
 
+/** Match various string types.  Note that greedy=false implies '''
+ *  should make us exit loop not continue.
+ */
+STRING
+    :   ('r'|'u'|'ur')?
+        (   '\'\'\'' (options {greedy=false;}:.)* '\'\'\''
+        |   '"""' (options {greedy=false;}:.)* '"""'
+        |   '"' (ESC|~('\\'|'\n'|'"'))* '"'
+        |   '\'' (ESC|~('\\'|'\n'|'\''))* '\''
+        )
+	;
+
+fragment
+ESC
+	:	'\\' .
+	;
+   	
 ASSIGNMENT_OPERATOR
 	:	'='
 	;
