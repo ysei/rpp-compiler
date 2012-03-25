@@ -155,6 +155,7 @@ lvalue
 
 TYPE	:	'int'
 	|	'float'
+	|	'boolean'
 	|	'String'
 	|	'Array'
 	|	'Hash'

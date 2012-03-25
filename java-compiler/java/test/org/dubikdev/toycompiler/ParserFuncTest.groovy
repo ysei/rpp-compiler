@@ -12,7 +12,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testEmptyFunctionDeclWithOneParam() {
         def code = """
-        def func(x)
+        def func(int x)
         end
         """
 
@@ -21,7 +21,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testEmptyFunctionDeclWithTwoParams() {
         def code = """
-        def func(x, y)
+        def func(float x, String y)
 
         end
         """
@@ -31,8 +31,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testEmptyFunctionDeclWithTwoParamsAndExpression() {
         def code = """
-        def func(x, y, 1 + z)
-
+        def func(int x, float y, boolean z)
 
         end
         """
@@ -42,7 +41,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFunctionWithAssignment() {
         def code = """
-        def func(x)
+        def func(int x)
         y = x
         end
         """
@@ -52,7 +51,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFunctionWithAssignmentAndExpression() {
         def code = """
-        def func(x)
+        def func(float x)
         y = (x + 10) * 3
         end
         """
@@ -62,7 +61,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFunctionWithAssignmentAndExpressionAndReturn() {
         def code = """
-        def func(x)
+        def func(int x)
         y = (x + 10) * 3
         return y
         end
@@ -73,7 +72,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFuncIfCond() {
         def code = """
-        def func(x)
+        def func(boolean x)
             if x == 0
                 f()
             else
@@ -87,7 +86,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFuncIfEmpty() {
         def code = """
-        def func(x)
+        def func(int x)
             if x == 0
             end
         end
@@ -97,7 +96,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFuncIfElseEmpty() {
         def code = """
-        def func(x)
+        def func(float x)
             if x == 0
             else
             end
@@ -108,7 +107,7 @@ class ParserFuncTest extends ParserBaseTestCase {
 
     public void testFuncIfCondError() {
         def code = """
-        def func(x)
+        def func(int x)
             if x == 0
                 fn fn
             end
