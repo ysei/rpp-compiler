@@ -10,6 +10,9 @@ options
 
 tokens {
 	BLOCK;
+	FUNC_RETURN_TYPE;
+	FUNC_PARAM;
+	FUNC_BODY;
 }
 
 @parser::header {
@@ -33,11 +36,19 @@ statement
 	;
 
 funcDecl
-	: 'def'	ID ('(' expression (',' expression)* ')')? NEWLINE!+ funcBody? 'end'!
+	: 'def'	ID ('('! funcParamDecl (','! funcParamDecl)* ')'! funcReturnDecl?)? NEWLINE!+ funcBody? 'end'!
+	;
+
+funcParamDecl
+	: TYPE ID -> ^(FUNC_PARAM TYPE ID)
+	;
+
+funcReturnDecl
+	: ':' TYPE -> ^(FUNC_RETURN_TYPE TYPE)
 	;
 
 funcBody
-	: funcBodyElement+ 
+	: funcBodyElement+ -> ^(FUNC_BODY funcBodyElement+)
 	;
 	
 funcBodyElement
@@ -140,6 +151,13 @@ assignment
 	;
 lvalue
 	:	UNARY_OPERATOR
+	;
+
+TYPE	:	'int'
+	|	'float'
+	|	'String'
+	|	'Array'
+	|	'Hash'
 	;
 
 UNARY_OPERATOR

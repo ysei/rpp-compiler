@@ -21,9 +21,9 @@ DEPS := $(OBJS:%.o=%.d)
 clean:
 	$(RM) -rf rpp rppLexer.h rppLexer.c rppParser.h rppParser.c rpp.tokens $(OBJDIR)/*.o $(OBJDIR)/*.d
 
-rppLexer.h: rpp.g
+rppLexer.h: Rpp.g
 	@echo "Generating lexer and parser from " $<
-	@antlr rpp.g
+	@antlr Rpp.g
 
 rppLexer.c : rppLexer.h
 
