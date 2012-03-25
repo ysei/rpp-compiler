@@ -1,15 +1,13 @@
-CC = g++
+CC = gcc
 LLVM_MODULES = core jit native
 CPPFLAGS = `/usr/local/bin/llvm-config --cppflags $(LLVM_MODULES)` -g
 LDFLAGS = `/usr/local/bin/llvm-config --ldflags $(LLVM_MODULES)`
-LIBS = `/usr/local/bin/llvm-config --libs $(LLVM_MODULES)` -lantlr3c
+LIBS = `/usr/local/bin/llvm-config --libs $(LLVM_MODULES)` -lantlr3c -lstdc++
 ANTLR = antlr
 
 all: rpp
 
-SRCS = ast.cpp \
-    global.cpp \
-    main.cpp
+SRCS = main.cpp
 
 OBJDIR = .obj
 OBJS := $(SRCS:%.cpp=$(OBJDIR)/%.o)
@@ -31,14 +29,12 @@ rppParser.c : rppLexer.h
 
 rppParser.h : rppLexer.h
 
-ast.cpp : rppLexer.h
-
 dirtree:
 	@mkdir -p .obj
 
 $(OBJDIR)/%.o: %.cpp rppParser.h | dirtree
 	@echo "Compiling " $<
-	@$(CC) -MD -c $(CPPFLAGS) -o $@ $<
+	$(CC) -MD -c $(CPPFLAGS) -o $@ $<
 
 $(OBJDIR)/rppLexer.o: rppLexer.h rppLexer.c
 	@echo "Compiling " $<

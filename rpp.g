@@ -3,18 +3,21 @@ grammar Rpp;
 options
 {
 	output = AST;
-	language = Java;
-	k  = 3;
+	language = C;
+	k = 3;
+	ASTLabelType = pANTLR3_BASE_TREE;
 }
 
 
 tokens {
 	BLOCK;
 	FUNC_RETURN_TYPE;
+	FUNC_PARAMS;
 	FUNC_PARAM;
 	FUNC_BODY;
+	FUNC_DEF;
 }
-
+/*
 @parser::header {
 package org.dubikdev.toycompiler;
 }
@@ -22,7 +25,7 @@ package org.dubikdev.toycompiler;
 @lexer::header{
 package org.dubikdev.toycompiler;
 }
-
+*/
 prog: NEWLINE!* ( progElem ((NEWLINE!)+ | EOF!))*
 	;
 
@@ -36,7 +39,7 @@ statement
 	;
 
 funcDecl
-	: 'def'	ID ('('! funcParamDecl (','! funcParamDecl)* ')'! funcReturnDecl?)? NEWLINE!+ funcBody? 'end'!
+	: 'def'	ID ('(' funcParamDecl (',' funcParamDecl)* ')' funcReturnDecl?)? NEWLINE+ funcBody? 'end' -> ^(FUNC_DEF ID ^(FUNC_PARAMS funcParamDecl*) funcReturnDecl? funcBody?)
 	;
 
 funcParamDecl
