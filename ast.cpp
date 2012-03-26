@@ -102,6 +102,8 @@ llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
         block->codeGen(context);
     }
 
+    context.popBlock();
+
     return function;
 }
 
@@ -117,8 +119,16 @@ llvm::Value *BlockStatement::codeGen(CodeGenContext &context)
 
 llvm::Value *ReturnStatement::codeGen(CodeGenContext &context)
 {
-    std::cout << "Generating code for ReturnStatement" << std::endl;
-    return NULL;
+    cout << "Generating code for ReturnStatement" << endl;
+
+    Value * expr = NULL;
+
+    if(expression) {
+        cout << "  Return expression" << endl;
+        expr = expression->codeGen(context);
+    }
+
+    return ReturnInst::Create(getGlobalContext(), expr, context.currentBlock());
 }
 
 llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
