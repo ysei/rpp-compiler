@@ -1,20 +1,7 @@
 #include <llvm/Support/TargetSelect.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
 #include "rppLexer.h"
 #include "rppParser.h"
-
-#include <antlr3basetree.h>
-#include <antlr3basetreeadaptor.h>
-#include <antlr3commontreenodestream.h>
-#include <antlr3commontoken.h>
-#include <antlr3string.h>
-
-#include <map>
-#include <stack>
-#include <vector>
 
 #include "ast.h"
 #include "astcreator.h"
