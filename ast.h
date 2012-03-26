@@ -45,9 +45,13 @@ public:
         delete top;
     }
 
+    llvm::Module * module();
+
+    void printAssembly();
+
 private:
     std::stack<CodeGenBlock *> blocks;
-    llvm::Module * module;
+    llvm::Module * m_module;
 };
 
 class ASTNode
@@ -95,6 +99,10 @@ public:
     virtual ~IdentifierNode() {}
     explicit IdentifierNode(const std::string& name) : name(name) {}
     virtual llvm::Value * codeGen(CodeGenContext& context);
+
+    std::string idName() const {
+        return name;
+    }
 
 private:
     std::string name;
@@ -146,6 +154,10 @@ public:
     VariableDeclaration(IdentifierNode* type, IdentifierNode * id) : type(type), id(id) {}
     VariableDeclaration(IdentifierNode* type, IdentifierNode * id, ExpressionNode * assingmentExpr)
         : type(type), id(id), assingmentExpr(assingmentExpr) {}
+
+    IdentifierNode * varType() const {
+        return type;
+    }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
