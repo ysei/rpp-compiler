@@ -148,6 +148,20 @@ private:
 	const std::string op;
 };
 
+class MethodCallExpression : public ExpressionNode
+{
+public:
+	MethodCallExpression(IdentifierNode & id, std::vector<ExpressionNode *> arguments)
+		: id(id), arguments(arguments)
+	{
+	}
+
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+
+private:
+	IdentifierNode id;
+	std::vector<ExpressionNode *> arguments;
+};
 
 inline pANTLR3_COMMON_TOKEN getToken(pANTLR3_BASE_TREE node)
 {
