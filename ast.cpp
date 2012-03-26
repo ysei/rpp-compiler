@@ -18,3 +18,8 @@ llvm::Value *VariableDeclaration::codeGen(CodeGenContext &context)
     return NULL;
 }
 
+llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}
+

@@ -30,13 +30,8 @@ public:
         pANTLR3_COMMON_TOKEN token = node->getToken(node);
         ASTNode * n = NULL;
 
-
-        switch(token->type) {
-        case FUNC_DEF:
-        {
-
-        }
-            break;
+        if(token->type == FUNC_DEF) {
+            n = createMethodDeclaration(node);
         }
 
         return n;
@@ -72,10 +67,11 @@ public:
 
     std::vector<VariableDeclaration *> createParams(pANTLR3_BASE_TREE node)
     {
-        pANTLR3_BASE_TREE params = getNodeChild(node, 1);
+        assert(getTokenType(node) == FUNC_PARAMS);
+
         std::vector<VariableDeclaration *> arguments;
-        for(int i = 0; i < getNodeChildCount(params); i++) {
-            VariableDeclaration * paramNode = createParam(getNodeChild(params, i));
+        for(int i = 0; i < getNodeChildCount(node); i++) {
+            VariableDeclaration * paramNode = createParam(getNodeChild(node, i));
             arguments.push_back(paramNode);
         }
 

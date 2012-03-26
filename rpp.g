@@ -5,7 +5,6 @@ options
 	output = AST;
 	language = C;
 	k = 3;
-	ASTLabelType = pANTLR3_BASE_TREE;
 }
 
 
@@ -51,7 +50,7 @@ funcParamDecl
 	;
 
 funcReturnDecl
-	: ':'! ^TYPE
+	: ':'! TYPE^
 	;
 
 funcBody
