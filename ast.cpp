@@ -1,4 +1,5 @@
 #include <llvm/Module.h>
+#include <llvm/Instructions.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/PassManager.h>
 #include <llvm/Assembly/PrintModulePass.h>
@@ -42,7 +43,20 @@ void CodeGenContext::printAssembly()
 
 llvm::Value *IdentifierNode::codeGen(CodeGenContext &context)
 {
-    std::cout << "Generating code for IdentifierNode" << std::endl;
+    cout << "Generating code for IdentifierNode" << endl;
+    Value * val = context.locals()[idName()];
+    if(val) {
+        cout << "  Using local variable: " << idName();
+        return val;
+    }
+
+    val = context.arguments()[idName()];
+    if(val) {
+        cout << "  Using argument: " << idName();
+        return val;
+    }
+
+    cout << "  Can't find identifier: " << idName();
     return NULL;
 }
 
@@ -63,16 +77,30 @@ llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
     vector<Type *> argTypes;
     cout << "  Params:" << endl;
     for(vector<VariableDeclaration *>::const_iterator iter = arguments.begin(); iter != arguments.end(); iter++) {
-         IdentifierNode * varType = (*iter)->varType();
-         argTypes.push_back(getType(varType->idName().c_str()));
-         cout << "    Adding " << varType->idName() << endl;
+        IdentifierNode * varType = (*iter)->varType();
+        argTypes.push_back(getType(varType->idName().c_str()));
+        cout << "    Adding " << varType->idName() << endl;
     }
 
     FunctionType * functionType = FunctionType::get(retType, makeArrayRef(argTypes), false);
     Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, name->idName(), context.module());
+
     BasicBlock * basicBlock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
 
     context.pushBlock(basicBlock);
+
+    int argIndex = 0;
+    for(Function::arg_iterator args = function->arg_begin(); args != function->arg_end(); args++, argIndex++) {
+        Value * arg = args;
+        arg->setName(arguments[argIndex]->varName()->idName());
+
+        context.arguments()[arg->getName()] = arg;
+    }
+
+
+    if(block) {
+        block->codeGen(context);
+    }
 
     return function;
 }
@@ -80,6 +108,10 @@ llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
 llvm::Value *BlockStatement::codeGen(CodeGenContext &context)
 {
     std::cout << "Generating code for BlockStatement" << std::endl;
+    for(vector<ASTNode *>::const_iterator iter = statements.begin(); iter != statements.end(); iter++) {
+        (*iter)->codeGen(context);
+    }
+
     return NULL;
 }
 
@@ -92,7 +124,15 @@ llvm::Value *ReturnStatement::codeGen(CodeGenContext &context)
 llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
 {
     std::cout << "Generating code for AssignmentExpression" << std::endl;
-    return NULL;
+    Value * existingVar = context.locals()[id->idName()];
+    Value * expr = rightExpression->codeGen(context);
+    if(!existingVar) {
+        cout << "  Creating variable " << id->idName() << endl;
+        existingVar = new AllocaInst(getType("int"), id->idName(), context.currentBlock());
+        context.locals()[id->idName()] = existingVar;
+    }
+
+    return new StoreInst(expr, existingVar, false, context.currentBlock());
 }
 
 llvm::Value *FloatNode::codeGen(CodeGenContext &context)
@@ -110,5 +150,19 @@ llvm::Value *IntegerNode::codeGen(CodeGenContext &context)
 llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)
 {
     std::cout << "Generating code for BinaryOpExpression" << std::endl;
-    return NULL;
+    Value * left = leftExpression->codeGen(context);
+    Value * right = rightExpression->codeGen(context);
+    Instruction::BinaryOps instr;
+
+    if(op == "+") {
+        instr = Instruction::Add;
+    } else if(op == "-") {
+        instr = Instruction::Sub;
+    } else if(op == "*") {
+        instr = Instruction::Mul;
+    } else if(op == "/") {
+        instr = Instruction::SDiv;
+    }
+
+    return BinaryOperator::Create(instr, left, right, "", context.currentBlock());
 }

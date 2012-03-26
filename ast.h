@@ -15,6 +15,7 @@ struct CodeGenBlock
 {
     llvm::BasicBlock * block;
     std::map<std::string, llvm::Value *> locals;
+    std::map<std::string, llvm::Value *> arguments;
 };
 
 class CodeGenContext
@@ -25,6 +26,11 @@ public:
     std::map<std::string, llvm::Value *>& locals()
     {
         return blocks.top()->locals;
+    }
+
+    std::map<std::string, llvm::Value *>& arguments()
+    {
+        return blocks.top()->arguments;
     }
 
     llvm::BasicBlock * currentBlock()
@@ -157,6 +163,10 @@ public:
 
     IdentifierNode * varType() const {
         return type;
+    }
+
+    IdentifierNode * varName() const {
+        return id;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
