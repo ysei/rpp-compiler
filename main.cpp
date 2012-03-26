@@ -104,9 +104,8 @@ class StatementNode : public ASTNode
 class IntegerNode : public ExpressionNode
 {
 public:
-	IntegerNode(int val) : value(val)
-	{
-	}
+	IntegerNode(const IntegerNode& other) : value(other.value) {}
+	explicit IntegerNode(int val) : value(val) {}
 	
 	virtual llvm::Value * codeGen(CodeGenContext& context);
 	
@@ -117,7 +116,8 @@ private:
 class FloatNode : public ExpressionNode
 {
 public:
-	FloatNode(float val) : value(val) {}
+	FloatNode(const FloatNode& other) : value(other.value) {}
+	explicit FloatNode(float val) : value(val) {}
 	virtual llvm::Value * codeGen(CodeGenContext& context);
 	
 private:
@@ -127,7 +127,8 @@ private:
 class IdentifierNode : public ExpressionNode
 {
 public:
-	IdentifierNode(const std::string& name) : name(name) {}
+	IdentifierNode(const IdentifierNode& other) : name(other.name) {}
+	explicit IdentifierNode(const std::string& name) : name(name) {}
 	virtual llvm::Value * codeGen(CodeGenContext& context);
 	
 private:
@@ -151,7 +152,7 @@ private:
 class MethodCallExpression : public ExpressionNode
 {
 public:
-	MethodCallExpression(IdentifierNode & id, std::vector<ExpressionNode *> arguments)
+	MethodCallExpression(IdentifierNode & id, std::vector<ExpressionNode *> & arguments)
 		: id(id), arguments(arguments)
 	{
 	}
@@ -161,6 +162,48 @@ public:
 private:
 	IdentifierNode id;
 	std::vector<ExpressionNode *> arguments;
+};
+
+class BlockStatement : public StatementNode
+{
+public:
+	BlockStatement(std::vector<StatementNode *>& statements) : statements(statements) {}
+
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+	
+private:
+	std::vector<StatementNode *> statements;
+};
+
+class VariableDeclaration : public StatementNode
+{
+public:
+	VariableDeclaration(const IdentifierNode& type, const IdentifierNode& id) : type(type), id(id) {}
+	VariableDeclaration(const IdentifierNode& type, const IdentifierNode&id, ExpressionNode * assingmentExpr)
+		: type(type), id(id), assingmentExpr(assingmentExpr) {}
+
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+	
+private:
+	IdentifierNode type;
+	IdentifierNode id;
+	ExpressionNode * assingmentExpr;
+};
+
+class MethodDeclaration : public StatementNode
+{
+public:
+	MethodDeclaration(const IdentifierNode& name, const IdentifierNode& returnType,
+		std::vector<VariableDeclaration *> & arguments, BlockStatement * block)
+		: name(name), returnType(returnType), arguments(arguments), block(block) {}
+
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+
+private:
+	IdentifierNode name;
+	IdentifierNode returnType;
+	std::vector<VariableDeclaration *> arguments;
+	BlockStatement * block;
 };
 
 inline pANTLR3_COMMON_TOKEN getToken(pANTLR3_BASE_TREE node)
