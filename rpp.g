@@ -1,4 +1,4 @@
-grammar Rpp;
+grammar rpp;
 
 options
 {
@@ -43,19 +43,19 @@ statement
 	;
 
 funcDecl
-	: 'def'	ID ('(' funcParamDecl (',' funcParamDecl)* ')' funcReturnDecl?)? NEWLINE+ funcBody? 'end' -> ^(FUNC_DEF ID ^(FUNC_PARAMS funcParamDecl*) funcReturnDecl? funcBody?)
+	: 'def'	RPP_ID ('(' funcParamDecl (',' funcParamDecl)* ')' )? funcReturnDecl? NEWLINE+ funcBody? 'end' -> ^(FUNC_DEF RPP_ID ^(FUNC_PARAMS funcParamDecl*) ^(FUNC_RETURN_TYPE funcReturnDecl?) funcBody?)
 	;
 
 funcParamDecl
-	: TYPE ID -> ^(FUNC_PARAM TYPE ID)
+	: TYPE RPP_ID -> ^(FUNC_PARAM TYPE RPP_ID)
 	;
 
 funcReturnDecl
-	: ':' TYPE -> ^(FUNC_RETURN_TYPE TYPE)
+	: ':'! ^TYPE
 	;
 
 funcBody
-	: funcBodyElement+ -> ^(FUNC_BODY funcBodyElement+)
+	: funcBodyElement+ -> ^(BLOCK funcBodyElement+)
 	;
 	
 funcBodyElement
@@ -76,7 +76,7 @@ while_stmt
 	;	
 	
 range_boundary
-	:	(ID | INT)
+	:	(RPP_ID | INT)
 	;
 	
 constant_expression
@@ -132,8 +132,8 @@ multiplicativeExpression
 	;
 
 unaryExpression
-	:	ID '(' expression_list_by_comma?  ')'
-	|	ID '[' additiveExpression ']'
+	:	RPP_ID '(' expression_list_by_comma?  ')'
+	|	RPP_ID '[' additiveExpression ']'
 	|	primaryExpression
 	|	'('! conditional_expression ')'!
 	;
@@ -143,7 +143,7 @@ expression_list_by_comma
 	;
 
 primaryExpression
-	:	ID
+	:	RPP_ID
 	|	INT
 	|   FLOAT
 	|	STRING
@@ -154,7 +154,7 @@ argument_expression_list
 	;
 
 assignment
-	:	ID '='^ expression
+	:	RPP_ID '='^ expression
 	;
 lvalue
 	:	UNARY_OPERATOR
@@ -179,7 +179,7 @@ NEWLINE
 	|	'\r\n'
 	;
 
-ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
+RPP_ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
 
 INT :	'0'..'9'+

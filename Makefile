@@ -7,7 +7,7 @@ ANTLR = antlr
 
 all: rpp
 
-SRCS = main.cpp
+SRCS = main.cpp ast.cpp astcreator.cpp
 
 OBJDIR = .obj
 OBJS := $(SRCS:%.cpp=$(OBJDIR)/%.o)
@@ -19,9 +19,9 @@ DEPS := $(OBJS:%.o=%.d)
 clean:
 	$(RM) -rf rpp rppLexer.h rppLexer.c rppParser.h rppParser.c rpp.tokens $(OBJDIR)/*.o $(OBJDIR)/*.d
 
-rppLexer.h: Rpp.g
+rppLexer.h: rpp.g
 	@echo "Generating lexer and parser from " $<
-	@antlr Rpp.g
+	@antlr rpp.g
 
 rppLexer.c : rppLexer.h
 
