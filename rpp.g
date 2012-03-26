@@ -16,6 +16,10 @@ tokens {
 	FUNC_PARAM;
 	FUNC_BODY;
 	FUNC_DEF;
+	IF;
+	THEN;
+	ELSE;
+	WHILE;
 }
 /*
 @parser::header {
@@ -64,11 +68,11 @@ funcBodyElement
 
 if_stmt
 	:	'if' expression NEWLINE+ thenBody=funcBody? ('else' NEWLINE+ elseBody=funcBody?)? 'end'
-			-> ^('if' expression ^(BLOCK $thenBody?) ^(BLOCK $elseBody?)?)
+			-> ^(IF expression ^(THEN $thenBody?) ^(ELSE $elseBody?)?)
 	;
 
 while_stmt
-	: 'while' expression NEWLINE+ funcBody? 'end' -> ^('while' expression ^(BLOCK funcBody?))
+	: 'while' expression NEWLINE+ funcBody? 'end' -> ^(WHILE expression ^(BLOCK funcBody?))
 	;	
 	
 range_boundary

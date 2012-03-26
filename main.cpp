@@ -303,6 +303,16 @@ public:
         }
     }
 
+	void createAst(pANTLR3_BASE_TREE node)
+	{
+		pANTLR3_COMMON_TOKEN token = node->getToken(node);
+		switch(token->type) {
+		case FUNC_DEF:
+			break;
+		
+		}
+	}
+
 protected:
     llvm::Type * getType(const unsigned char * type) {
         std::string typeString((const char *) type);
@@ -382,6 +392,7 @@ int main(int /* argc */, char **  /* argv[] */)
     {
         fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n", parser->pParser->rec->state->errorCount);
     } else {
+		printf("Tree: %s\n", prog.tree->toStringTree(prog.tree)->chars);
         RppCodeGen codeGen;
         codeGen.generateCode(prog.tree);
         // generateCode(prog.tree);
