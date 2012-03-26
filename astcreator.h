@@ -17,85 +17,18 @@
 class AstCreator
 {
 public:
-    AstCreator()
-    {
-    }
+    AstCreator();
+    virtual ~AstCreator();
 
-    virtual ~AstCreator()
-    {
-    }
+    ASTNode * createAst(pANTLR3_BASE_TREE node);
 
-    ASTNode * createAst(pANTLR3_BASE_TREE node)
-    {
-        pANTLR3_COMMON_TOKEN token = node->getToken(node);
-        ASTNode * n = NULL;
-
-        if(token->type == FUNC_DEF) {
-            n = createMethodDeclaration(node);
-        }
-
-        return n;
-    }
-
-    MethodDeclaration * createMethodDeclaration(pANTLR3_BASE_TREE node)
-    {
-        IdentifierNode * idNode = createIdentifier(getNodeChild(node, 0));
-        std::vector<VariableDeclaration *> arguments = createParams(getNodeChild(node, 1));
-        IdentifierNode * returnType = createReturnType(getNodeChild(node, 2));
-        BlockStatement * blockStatement = createBlock(getNodeChild(node, 3));
-
-        return new MethodDeclaration(idNode, returnType, arguments, blockStatement);
-    }
-
-    BlockStatement * createBlock(pANTLR3_BASE_TREE node)
-    {
-        return NULL;
-    }
-
-    IdentifierNode * createReturnType(pANTLR3_BASE_TREE node)
-    {
-        assert(getTokenType(node) == FUNC_RETURN_TYPE);
-
-        if(getNodeChildCount(node) == 0) {
-            return new IdentifierNode("void");
-        }
-
-        IdentifierNode * astNode = new IdentifierNode(getNodeString(getNodeChild(node, 0)));
-
-        return astNode;
-    }
-
-    std::vector<VariableDeclaration *> createParams(pANTLR3_BASE_TREE node)
-    {
-        assert(getTokenType(node) == FUNC_PARAMS);
-
-        std::vector<VariableDeclaration *> arguments;
-        for(int i = 0; i < getNodeChildCount(node); i++) {
-            VariableDeclaration * paramNode = createParam(getNodeChild(node, i));
-            arguments.push_back(paramNode);
-        }
-
-        return arguments;
-    }
-
-    VariableDeclaration * createParam(pANTLR3_BASE_TREE node)
-    {
-        assert(getTokenType(node) == FUNC_PARAM);
-
-        IdentifierNode * typeNode = createIdentifier(getNodeChild(node, 0));
-        IdentifierNode * idNode = createIdentifier(getNodeChild(node, 1));
-        VariableDeclaration * astNode = new VariableDeclaration(typeNode, idNode);
-
-        return astNode;
-    }
-
-    IdentifierNode * createIdentifier(pANTLR3_BASE_TREE node)
-    {
-        std::cout << "RPP_ID: " << getNodeString(node) << std::endl;
-        IdentifierNode * astNode = new IdentifierNode(getNodeString(node));
-
-        return astNode;
-    }
+    MethodDeclaration * createMethodDeclaration(pANTLR3_BASE_TREE node);
+    BlockStatement * createBlock(pANTLR3_BASE_TREE node);
+    StatementNode * createStatement(pANTLR3_BASE_TREE node);
+    IdentifierNode * createReturnType(pANTLR3_BASE_TREE node);
+    std::vector<VariableDeclaration *> createParams(pANTLR3_BASE_TREE node);
+    VariableDeclaration * createParam(pANTLR3_BASE_TREE node);
+    IdentifierNode * createIdentifier(pANTLR3_BASE_TREE node);
 
 protected:
     /*

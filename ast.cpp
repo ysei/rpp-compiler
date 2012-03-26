@@ -23,3 +23,8 @@ llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
     return NULL;
 }
 
+llvm::Value *BlockStatement::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}
+
