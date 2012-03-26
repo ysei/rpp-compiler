@@ -24,12 +24,14 @@
 #include <antlr3commontreenodestream.h>
 #include <antlr3commontoken.h>
 #include <antlr3string.h>
+
+#include <map>
+#include <stack>
 #include <vector>
 
-using namespace std;
 
 /*
-def func(x, y)
+def func(int x, int y) : int
     return x + y
 end
 
@@ -40,8 +42,112 @@ def main
     p = 23 + 43 * (10 + k)
     puts k
 end
-
 */
+
+struct CodeGenBlock
+{
+	llvm::BasicBlock * block;
+	std::map<std::string, llvm::Value *> locals;	
+};
+
+class CodeGenContext
+{
+public:
+	CodeGenContext()
+	{
+		module = new llvm::Module("main", llvm::getGlobalContext());
+	}
+	
+	std::map<std::string, llvm::Value *>& locals()
+	{
+		return blocks.top()->locals;
+	}
+	
+	llvm::BasicBlock * currentBlock()
+	{
+		return blocks.top()->block;
+	}
+	
+	void pushBlock(llvm::BasicBlock * block)
+	{
+		blocks.push(new CodeGenBlock());
+		blocks.top()->block = block;
+	}
+	
+	void popBlock()
+	{
+		CodeGenBlock * top = blocks.top();
+		blocks.pop();
+		delete top;
+	}
+	
+private:
+	std::stack<CodeGenBlock *> blocks;
+	llvm::Module * module;
+};
+
+class ASTNode
+{
+public:
+	virtual ~ASTNode() {};
+	virtual llvm::Value * codeGen(CodeGenContext& context) = 0;
+};
+
+class ExpressionNode : public ASTNode
+{
+};
+
+class StatementNode : public ASTNode
+{	
+};
+
+class IntegerNode : public ExpressionNode
+{
+public:
+	IntegerNode(int val) : value(val)
+	{
+	}
+	
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+	
+private:
+	int value;
+};
+
+class FloatNode : public ExpressionNode
+{
+public:
+	FloatNode(float val) : value(val) {}
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+	
+private:
+	float value;
+};
+
+class IdentifierNode : public ExpressionNode
+{
+public:
+	IdentifierNode(const std::string& name) : name(name) {}
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+	
+private:
+	std::string name;
+};
+
+class BinaryOpExpression : public ExpressionNode
+{
+public:
+	BinaryOpExpression(ExpressionNode& leftExpression, ExpressionNode& rightExpression, const std::string op)
+		: leftExpression(leftExpression), rightExpression(rightExpression), op(op) {}
+		
+	virtual llvm::Value * codeGen(CodeGenContext& context);
+	
+private:
+	ExpressionNode & leftExpression;
+	ExpressionNode & rightExpression;
+	const std::string op;
+};
+
 
 inline pANTLR3_COMMON_TOKEN getToken(pANTLR3_BASE_TREE node)
 {
@@ -93,7 +199,7 @@ public:
         delete module;
     }
 
-    llvm::Value * codeGenForFunc(const string& funcName, const vector<llvm::Type *> arguments, llvm::Type * returnType, pANTLR3_BASE_TREE block)
+    llvm::Value * codeGenForFunc(const std::string& funcName, const std::vector<llvm::Type *> arguments, llvm::Type * returnType, pANTLR3_BASE_TREE block)
     {
         llvm::FunctionType *ftype = llvm::FunctionType::get(returnType, makeArrayRef(arguments), false);
         llvm::Function * function = llvm::Function::Create(ftype, llvm::GlobalValue::InternalLinkage, funcName.c_str(), module);
@@ -108,7 +214,7 @@ public:
 
     void printByteCode()
     {
-        cout << "Code is generated." << endl;
+        std::cout << "Code is generated." << std::endl;
         llvm::PassManager pm;
         pm.add(llvm::createPrintModulePass(&llvm::outs()));
         pm.run(*module);
@@ -121,13 +227,13 @@ public:
 
         printf("Generating function: %s\n", funcName);
 
-        vector<llvm::Type *> argTypes;
+        std::vector<llvm::Type *> argTypes;
 
         populateFuncArgsList(node, argTypes);
 
         llvm::Type * returnType = getReturnType(node);
 
-        codeGenForFunc(string((const char *)funcName), argTypes, returnType, getNodeChild(node, getNodeChildCount(node) - 1));
+        codeGenForFunc(std::string((const char *)funcName), argTypes, returnType, getNodeChild(node, getNodeChildCount(node) - 1));
     }
 
     void generateCode(pANTLR3_BASE_TREE node)
@@ -142,19 +248,19 @@ public:
 
 protected:
     llvm::Type * getType(const unsigned char * type) {
-        string typeString((const char *) type);
-        if(typeString == string("int")) {
+        std::string typeString((const char *) type);
+        if(typeString == std::string("int")) {
             return llvm::Type::getInt32Ty(llvm::getGlobalContext());
-        } else if(typeString == string("float")) {
+        } else if(typeString == std::string("float")) {
             return llvm::Type::getFloatTy(llvm::getGlobalContext());
-        } else if(typeString == string("void")) {
+        } else if(typeString == std::string("void")) {
             return llvm::Type::getVoidTy(llvm::getGlobalContext());
         }
 
         return NULL;
     }
 
-    void populateFuncArgsList(pANTLR3_BASE_TREE node, vector<llvm::Type *>& argTypes)
+    void populateFuncArgsList(pANTLR3_BASE_TREE node, std::vector<llvm::Type *>& argTypes)
     {
         if(getNodeChildCount(node) == 1)
             return;
@@ -169,7 +275,7 @@ protected:
                 unsigned char * text = getNodeText(p);
 
                 argTypes.push_back(getType(text));
-                cout << getType(text) << endl;
+                std::cout << getType(text) << std::endl;
             }
         }
     }

@@ -1,4 +1,4 @@
-CC = gcc
+CC = clang
 LLVM_MODULES = core jit native
 CPPFLAGS = `/usr/local/bin/llvm-config --cppflags $(LLVM_MODULES)` -g
 LDFLAGS = `/usr/local/bin/llvm-config --ldflags $(LLVM_MODULES)`
