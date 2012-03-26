@@ -47,6 +47,7 @@ BlockStatement * AstCreator::createBlock(pANTLR3_BASE_TREE node)
 
 StatementNode *AstCreator::createStatement(pANTLR3_BASE_TREE node)
 {
+
     return NULL;
 }
 
