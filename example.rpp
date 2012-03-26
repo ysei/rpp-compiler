@@ -1,4 +1,4 @@
 def myFunc(int x, int y) : int
-    z = x + y
+    z = x - y
     return  z
 end

@@ -103,14 +103,14 @@ private:
 class BinaryOpExpression : public ExpressionNode
 {
 public:
-    BinaryOpExpression(ExpressionNode& leftExpression, ExpressionNode& rightExpression, const std::string op)
+    BinaryOpExpression(ExpressionNode * leftExpression, ExpressionNode * rightExpression, const std::string& op)
         : leftExpression(leftExpression), rightExpression(rightExpression), op(op) {}
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
 private:
-    ExpressionNode & leftExpression;
-    ExpressionNode & rightExpression;
+    ExpressionNode * leftExpression;
+    ExpressionNode * rightExpression;
     const std::string op;
 };
 
@@ -132,12 +132,12 @@ private:
 class BlockStatement : public StatementNode
 {
 public:
-    BlockStatement(std::vector<StatementNode *>& statements) : statements(statements) {}
+    BlockStatement(std::vector<ASTNode *>& statements) : statements(statements) {}
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
 private:
-    std::vector<StatementNode *> statements;
+    std::vector<ASTNode *> statements;
 };
 
 class VariableDeclaration : public StatementNode
@@ -169,6 +169,29 @@ private:
     IdentifierNode * returnType;
     std::vector<VariableDeclaration *> arguments;
     BlockStatement * block;
+};
+
+class ReturnStatement : public StatementNode
+{
+public:
+    ReturnStatement(ExpressionNode * expresion) : expression(expresion) {}
+
+    virtual llvm::Value * codeGen(CodeGenContext &context);
+
+private:
+    ExpressionNode * expression;
+};
+
+class AssignmentExpression : public ExpressionNode
+{
+public:
+    AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : id(id), rightExpression(rightExpression) {}
+
+    virtual llvm::Value * codeGen(CodeGenContext &context);
+
+private:
+    IdentifierNode * id;
+    ExpressionNode * rightExpression;
 };
 
 #endif

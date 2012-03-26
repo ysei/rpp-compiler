@@ -15,9 +15,9 @@ inline unsigned char * getTokenText(pANTLR3_COMMON_TOKEN token)
     return token->getText(token)->chars;
 }
 
-inline unsigned char * getNodeText(pANTLR3_BASE_TREE node)
+inline char * getNodeText(pANTLR3_BASE_TREE node)
 {
-    return getTokenText(getToken(node));
+    return (char *)getTokenText(getToken(node));
 }
 
 inline std::string getNodeString(pANTLR3_BASE_TREE node)

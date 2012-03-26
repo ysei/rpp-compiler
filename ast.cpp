@@ -28,3 +28,27 @@ llvm::Value *BlockStatement::codeGen(CodeGenContext &context)
     return NULL;
 }
 
+llvm::Value *ReturnStatement::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}
+
+llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}
+
+llvm::Value *FloatNode::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}
+
+llvm::Value *IntegerNode::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}
+
+llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)
+{
+    return NULL;
+}

@@ -19,6 +19,9 @@ tokens {
 	THEN;
 	ELSE;
 	WHILE;
+	RETURN;
+	ASSIGNMENT;
+	BINOP;
 }
 /*
 @parser::header {
@@ -60,7 +63,7 @@ funcBody
 funcBodyElement
 	: assignment NEWLINE!+
 	| conditional_expression NEWLINE!+
-	| 'return'^ constant_expression NEWLINE!+
+	| 'return' constant_expression NEWLINE+ -> ^(RETURN constant_expression)
 	| if_stmt NEWLINE!+
 	| while_stmt NEWLINE!+
 	;	
@@ -123,8 +126,8 @@ shift_expression
 	;
 
 additiveExpression
-	:	multiplicativeExpression ( '+'^ multiplicativeExpression | '-'^ multiplicativeExpression)*
-	;
+	:	multiplicativeExpression ( ( '+'^ | '-'^ ) multiplicativeExpression)*
+		;
 
 multiplicativeExpression
 	:	unaryExpression ( '*'^ unaryExpression | '/'^ unaryExpression)*
@@ -144,7 +147,7 @@ expression_list_by_comma
 primaryExpression
 	:	RPP_ID
 	|	INT
-	|   FLOAT
+	|       FLOAT
 	|	STRING
 	;
 
@@ -153,7 +156,7 @@ argument_expression_list
 	;
 
 assignment
-	:	RPP_ID '='^ expression
+	:	RPP_ID '=' expression -> ^(ASSIGNMENT RPP_ID expression)
 	;
 lvalue
 	:	UNARY_OPERATOR
