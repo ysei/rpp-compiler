@@ -175,6 +175,10 @@ public:
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(this);
+    }
+
 private:
     float value;
 };
@@ -189,6 +193,10 @@ public:
 
     std::string idName() const {
         return name;
+    }
+
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(this);
     }
 
 private:
@@ -209,6 +217,11 @@ public:
         return combineTypes(leftType, rightType);
     }
 
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(leftExpression);
+        visitor->visit(rightExpression);
+        visitor->visit(this);
+    }
 private:
     ExpressionNode * leftExpression;
     ExpressionNode * rightExpression;
@@ -225,6 +238,14 @@ public:
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
+    virtual void accept(ASTNodeVisitor * visitor) {
+        for(std::vector<ExpressionNode *>::const_iterator iter = arguments.begin(); iter != arguments.end(); iter++) {
+            visitor->visit(*iter);
+        }
+
+        visitor->visit(this);
+    }
+
 private:
     IdentifierNode id;
     std::vector<ExpressionNode *> arguments;
@@ -236,6 +257,14 @@ public:
     BlockStatement(std::vector<ASTNode *>& statements) : statements(statements) {}
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
+
+    virtual void accept(ASTNodeVisitor * visitor) {
+        for(std::vector<ASTNode *>::const_iterator iter = statements.begin(); iter != statements.end(); iter++) {
+            visitor->visit(*iter);
+        }
+
+        visitor->visit(this);
+    }
 
 private:
     std::vector<ASTNode *> statements;
@@ -261,6 +290,14 @@ public:
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
+    virtual void accept(ASTNodeVisitor * visitor) {
+        if(assingmentExpr) {
+            visitor->visit(assingmentExpr);
+        }
+
+        visitor->visit(this);
+    }
+
 private:
     IdentifierNode * type;
     IdentifierNode * id;
@@ -276,6 +313,11 @@ public:
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(this);
+        visitor->visit(block);
+    }
+
 private:
     IdentifierNode * name;
     IdentifierNode * returnType;
@@ -290,6 +332,14 @@ public:
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
+    virtual void accept(ASTNodeVisitor * visitor) {
+        if(expression) {
+            visitor->visit(expression);
+        }
+
+        visitor->visit(this);
+    }
+
 private:
     ExpressionNode * expression;
 };
@@ -300,6 +350,11 @@ public:
     AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : id(id), rightExpression(rightExpression) {}
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
+
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(rightExpression);
+        visitor->visit(this);
+    }
 
 private:
     IdentifierNode * id;
@@ -312,6 +367,13 @@ public:
     Program(std::vector<MethodDeclaration *> methods) : m_methods(methods) {}
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
+
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(this);
+        for(std::vector<MethodDeclaration *>::const_iterator iter = m_methods.begin(); iter != m_methods.end(); iter++) {
+            visitor->visit(*iter);
+        }
+    }
 
 private:
     std::vector<MethodDeclaration *> m_methods;

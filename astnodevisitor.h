@@ -1,6 +1,7 @@
 #ifndef _ASTNODEVISITOR_H__
 #define _ASTNODEVISITOR_H__
 
+class ASTNode;
 class ExpressionNode;
 class StatementNode;
 class FloatNode;
@@ -17,6 +18,7 @@ class Program;
 class ASTNodeVisitor
 {
 public:
+    virtual void visit(ASTNode * node) {}
     virtual void visit(ExpressionNode * node) {}
     virtual void visit(StatementNode * node) {}
     virtual void visit(FloatNode * node) {}
