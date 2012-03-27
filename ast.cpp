@@ -3,6 +3,8 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/PassManager.h>
 #include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Transforms/Scalar.h>
 #include <llvm/Constants.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -39,6 +41,17 @@ static Type * getType(ExpressionNode::Type expressionType) {
     return Type::getVoidTy(getGlobalContext());
 }
 
+static ExpressionNode::Type getExpressionNodeType(llvm::Type * type)
+{
+    if(type->isIntegerTy()) {
+        return ExpressionNode::Int;
+    } else if(type->isFloatTy()) {
+        return ExpressionNode::Float;
+    }
+
+    return ExpressionNode::Invalid;
+}
+
 CodeGenContext::CodeGenContext()
 {
     m_module = new llvm::Module("main", llvm::getGlobalContext());
@@ -52,6 +65,11 @@ Module * CodeGenContext::module()
 void CodeGenContext::printAssembly()
 {
     PassManager pm;
+#ifdef OPTIMIZE_GENERATED_CODE
+    pm.add(createCFGSimplificationPass());
+    pm.add(createInstructionCombiningPass());
+    pm.add(createPromoteMemoryToRegisterPass());
+#endif
     pm.add(createPrintModulePass(&outs()));
     pm.run(*m_module);
 }
@@ -62,12 +80,14 @@ llvm::Value *IdentifierNode::codeGen(CodeGenContext &context)
     Value * val = context.locals()[idName()];
     if(val) {
         cout << "  Using local variable: " << idName() << endl;
+        setType(getExpressionNodeType(val->getType())); // TODO this should happen before code generation
         return val;
     }
 
     val = context.arguments()[idName()];
     if(val) {
         cout << "  Using argument: " << idName() << endl;
+        setType(getExpressionNodeType(val->getType())); // TODO this should happen before code generation
         return val;
     }
 
@@ -190,6 +210,10 @@ llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)
     std::cout << "Generating code for BinaryOpExpression" << std::endl;
     Value * left = leftExpression->codeGen(context);
     Value * right = rightExpression->codeGen(context);
+
+    // TODO This should be done before code generation
+    setType(combineTypes(leftExpression->type(), rightExpression->type()));
+
     Instruction::BinaryOps instr;
 
     if(op == "+") {

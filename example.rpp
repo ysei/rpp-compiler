@@ -2,7 +2,8 @@ def anotherFunc(int z) : int
     return z
 end
 
-def myFunc(int x, int y) : int
+def myFunc(int x, float y) : int
+    dY = y
     dX = 0.5
     z = x - y
     return  z
