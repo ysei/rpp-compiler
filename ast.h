@@ -69,6 +69,68 @@ public:
 
 class ExpressionNode : public ASTNode
 {
+public:
+    enum Type {
+        Int = 1,
+        Float = 2,
+        Invalid = 4
+    };
+
+    ExpressionNode() : m_type(ExpressionNode::Invalid) {}
+
+    virtual ExpressionNode::Type type() const {
+        return m_type;
+    }
+
+    std::string typeString() const {
+        switch(m_type) {
+        case Int:
+            return "int";
+        case Float:
+            return "float";
+        case Invalid:
+            return "Invalid";
+        }
+
+        return "Unknown";
+    }
+
+    void setType(const ExpressionNode::Type type) {
+        m_type = type;
+    }
+
+    void setType(const std::string& typeString) {
+        m_type = expressionTypeFromString(typeString);
+    }
+
+protected:
+    ExpressionNode::Type combineTypes(ExpressionNode::Type left, ExpressionNode::Type right) const {
+        int combined = left | right;
+        switch(combined) {
+        case 1:
+            return ExpressionNode::Int;
+
+        case 2:
+        case 3:
+            return ExpressionNode::Float;
+
+        default:
+            return ExpressionNode::Invalid;
+        }
+    }
+
+    ExpressionNode::Type expressionTypeFromString(const std::string& typeString) {
+        if(typeString == "int") {
+            return ExpressionNode::Int;
+        } else if(typeString == "float") {
+            return ExpressionNode::Float;
+        }
+
+        return ExpressionNode::Invalid;
+    }
+
+protected:
+    ExpressionNode::Type m_type;
 };
 
 class StatementNode : public ASTNode
@@ -78,8 +140,13 @@ class StatementNode : public ASTNode
 class IntegerNode : public ExpressionNode
 {
 public:
-    IntegerNode(const IntegerNode& other) : value(other.value) {}
-    explicit IntegerNode(int val) : value(val) {}
+    IntegerNode(const IntegerNode& other) : value(other.value) {
+        setType(ExpressionNode::Int);
+    }
+
+    explicit IntegerNode(int val) : value(val) {
+        setType(ExpressionNode::Int);
+    }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
@@ -90,8 +157,14 @@ private:
 class FloatNode : public ExpressionNode
 {
 public:
-    FloatNode(const FloatNode& other) : value(other.value) {}
-    explicit FloatNode(float val) : value(val) {}
+    FloatNode(const FloatNode& other) : value(other.value) {
+        setType(ExpressionNode::Float);
+    }
+
+    explicit FloatNode(float val) : value(val) {
+        setType(ExpressionNode::Float);
+    }
+
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
 private:
@@ -121,6 +194,12 @@ public:
         : leftExpression(leftExpression), rightExpression(rightExpression), op(op) {}
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
+
+    virtual ExpressionNode::Type getType() const {
+        ExpressionNode::Type leftType = leftExpression->type();
+        ExpressionNode::Type rightType = rightExpression->type();
+        return combineTypes(leftType, rightType);
+    }
 
 private:
     ExpressionNode * leftExpression;
@@ -159,7 +238,10 @@ class VariableDeclaration : public StatementNode
 public:
     VariableDeclaration(IdentifierNode* type, IdentifierNode * id) : type(type), id(id) {}
     VariableDeclaration(IdentifierNode* type, IdentifierNode * id, ExpressionNode * assingmentExpr)
-        : type(type), id(id), assingmentExpr(assingmentExpr) {}
+        : type(type), id(id), assingmentExpr(assingmentExpr) {
+
+        varName()->setType(varType()->idName());
+    }
 
     IdentifierNode * varType() const {
         return type;
@@ -181,7 +263,7 @@ class MethodDeclaration : public StatementNode
 {
 public:
     MethodDeclaration(IdentifierNode * name, IdentifierNode * returnType,
-        std::vector<VariableDeclaration *> & arguments, BlockStatement * block)
+                      std::vector<VariableDeclaration *> & arguments, BlockStatement * block)
         : name(name), returnType(returnType), arguments(arguments), block(block) {}
 
     virtual llvm::Value * codeGen(CodeGenContext& context);

@@ -25,6 +25,20 @@ static Type * getType(const string & typeString) {
     return NULL;
 }
 
+static Type * getType(ExpressionNode::Type expressionType) {
+    switch(expressionType) {
+    case ExpressionNode::Int:
+        return Type::getInt32Ty(getGlobalContext());
+    case ExpressionNode::Float:
+        return Type::getFloatTy(getGlobalContext());
+
+    default:
+        cerr << "getType - unknown type" << endl;
+    }
+
+    return Type::getVoidTy(getGlobalContext());
+}
+
 CodeGenContext::CodeGenContext()
 {
     m_module = new llvm::Module("main", llvm::getGlobalContext());
@@ -140,7 +154,17 @@ llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
     Value * expr = rightExpression->codeGen(context);
     if(!existingVar) {
         cout << "  Creating variable " << id->idName() << endl;
-        existingVar = new AllocaInst(getType("int"), id->idName(), context.currentBlock());
+        cout << "    Detected type: " << rightExpression->typeString() << endl;
+
+        llvm::Type * varType;
+        if(rightExpression->type() != ExpressionNode::Invalid) {
+            varType = getType(rightExpression->type());
+        } else {
+            cerr << "Can't figure out type of expression!!" << endl;
+            varType = getType("int");
+        }
+
+        existingVar = new AllocaInst(varType, id->idName(), context.currentBlock());
         context.locals()[id->idName()] = existingVar;
     }
 
@@ -151,14 +175,14 @@ llvm::Value *FloatNode::codeGen(CodeGenContext &context)
 {
     cout << "Generating code for FloatNode" << value << endl;
 
-    return ConstantFP::get(Type::getFloatTy(getGlobalContext()), value);
+    return ConstantFP::get(llvm::Type::getFloatTy(getGlobalContext()), value);
 }
 
 llvm::Value *IntegerNode::codeGen(CodeGenContext &context)
 {
     cout << "Generating code for IntegerNode " << value << endl;
 
-    return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), value, true);
+    return ConstantInt::get(llvm::Type::getInt32Ty(getGlobalContext()), value, true);
 }
 
 llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)

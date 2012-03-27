@@ -3,7 +3,7 @@ def anotherFunc(int z) : int
 end
 
 def myFunc(int x, int y) : int
-    i = 0
-    z = x - y + i
+    dX = 0.5
+    z = x - y
     return  z
 end
