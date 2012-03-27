@@ -1,3 +1,7 @@
+def anotherFunc(int z) : int
+    return z
+end
+
 def myFunc(int x, int y) : int
     i = 0
     z = x - y + i

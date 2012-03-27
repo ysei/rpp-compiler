@@ -26,7 +26,7 @@ int main(int /* argc */, char **  /* argv[] */)
     } else {
         printf("Tree: %s\n", prog.tree->toStringTree(prog.tree)->chars);
         AstCreator creator;
-        ASTNode * root = creator.createAst(prog.tree);
+        ASTNode * root = creator.createProgram(prog.tree);
         CodeGenContext context;
         llvm::Value * program = root->codeGen(context);
         context.printAssembly();

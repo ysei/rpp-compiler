@@ -8,16 +8,22 @@ AstCreator::~AstCreator()
 {
 }
 
-ASTNode * AstCreator::createAst(pANTLR3_BASE_TREE node)
+ASTNode * AstCreator::createProgram(pANTLR3_BASE_TREE node)
 {
-    pANTLR3_COMMON_TOKEN token = node->getToken(node);
-    ASTNode * n = NULL;
+    assert(node);
 
-    if(token->type == FUNC_DEF) {
-        n = createMethodDeclaration(node);
+    pANTLR3_COMMON_TOKEN token = node->getToken(node);
+
+    assert(token);
+    assert(getTokenType(node) == PROGRAM);
+
+    std::vector<MethodDeclaration *> methods;
+    for(int i = 0; i < getNodeChildCount(node); i++) {
+        MethodDeclaration * method = createMethodDeclaration(getNodeChild(node, i));
+        methods.push_back(method);
     }
 
-    return n;
+    return new Program(methods);
 }
 
 MethodDeclaration * AstCreator::createMethodDeclaration(pANTLR3_BASE_TREE node)

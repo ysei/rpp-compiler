@@ -216,4 +216,15 @@ private:
     ExpressionNode * rightExpression;
 };
 
+class Program : public ASTNode
+{
+public:
+    Program(std::vector<MethodDeclaration *> methods) : m_methods(methods) {}
+
+    virtual llvm::Value * codeGen(CodeGenContext &context);
+
+private:
+    std::vector<MethodDeclaration *> m_methods;
+};
+
 #endif

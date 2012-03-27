@@ -1,6 +1,6 @@
 CC = clang
 LLVM_MODULES = core jit native
-CPPFLAGS = `/usr/local/bin/llvm-config --cppflags $(LLVM_MODULES)` -g
+CPPFLAGS = -I/usr/local/include -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -g
 LDFLAGS = `/usr/local/bin/llvm-config --ldflags $(LLVM_MODULES)`
 LIBS = `/usr/local/bin/llvm-config --libs $(LLVM_MODULES)` -lantlr3c -lstdc++
 ANTLR = antlr

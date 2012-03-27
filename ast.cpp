@@ -180,3 +180,12 @@ llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)
 
     return BinaryOperator::Create(instr, left, right, "tmp", context.currentBlock());
 }
+
+Value *Program::codeGen(CodeGenContext &context)
+{
+    for(std::vector<MethodDeclaration *>::const_iterator iter = m_methods.begin(); iter != m_methods.end(); iter++) {
+        (*iter)->codeGen(context);
+    }
+
+    return NULL;
+}

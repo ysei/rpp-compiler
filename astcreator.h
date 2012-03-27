@@ -20,7 +20,7 @@ public:
     AstCreator();
     virtual ~AstCreator();
 
-    ASTNode * createAst(pANTLR3_BASE_TREE node);
+    ASTNode * createProgram(pANTLR3_BASE_TREE node);
 
     MethodDeclaration * createMethodDeclaration(pANTLR3_BASE_TREE node);
     BlockStatement * createBlock(pANTLR3_BASE_TREE node);

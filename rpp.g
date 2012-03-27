@@ -7,7 +7,6 @@ options
 	k = 3;
 }
 
-
 tokens {
 	BLOCK;
 	FUNC_RETURN_TYPE;
@@ -22,7 +21,9 @@ tokens {
 	RETURN;
 	ASSIGNMENT;
 	BINOP;
+	PROGRAM;
 }
+
 /*
 @parser::header {
 package org.dubikdev.toycompiler;
@@ -32,7 +33,8 @@ package org.dubikdev.toycompiler;
 package org.dubikdev.toycompiler;
 }
 */
-prog: NEWLINE!* ( progElem ((NEWLINE!)+ | EOF!))*
+
+prog: NEWLINE* ( progElem ((NEWLINE)+ | EOF))* -> ^(PROGRAM progElem*)
 	;
 
 progElem
