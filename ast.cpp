@@ -3,6 +3,7 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/PassManager.h>
 #include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/Constants.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include "ast.h"
@@ -46,13 +47,13 @@ llvm::Value *IdentifierNode::codeGen(CodeGenContext &context)
     cout << "Generating code for IdentifierNode" << endl;
     Value * val = context.locals()[idName()];
     if(val) {
-        cout << "  Using local variable: " << idName();
+        cout << "  Using local variable: " << idName() << endl;
         return val;
     }
 
     val = context.arguments()[idName()];
     if(val) {
-        cout << "  Using argument: " << idName();
+        cout << "  Using argument: " << idName() << endl;
         return val;
     }
 
@@ -104,6 +105,7 @@ llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
 
     context.popBlock();
 
+    cout << "Code generation is done" << endl << endl;
     return function;
 }
 
@@ -147,14 +149,16 @@ llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
 
 llvm::Value *FloatNode::codeGen(CodeGenContext &context)
 {
-    std::cout << "Generating code for FloatNode" << std::endl;
-    return NULL;
+    cout << "Generating code for FloatNode" << value << endl;
+
+    return ConstantFP::get(Type::getFloatTy(getGlobalContext()), value);
 }
 
 llvm::Value *IntegerNode::codeGen(CodeGenContext &context)
 {
-    std::cout << "Generating code for IntegerNode" << std::endl;
-    return NULL;
+    cout << "Generating code for IntegerNode " << value << endl;
+
+    return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), value, true);
 }
 
 llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)
@@ -174,5 +178,5 @@ llvm::Value *BinaryOpExpression::codeGen(CodeGenContext &context)
         instr = Instruction::SDiv;
     }
 
-    return BinaryOperator::Create(instr, left, right, "", context.currentBlock());
+    return BinaryOperator::Create(instr, left, right, "tmp", context.currentBlock());
 }
