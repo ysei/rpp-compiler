@@ -9,6 +9,8 @@
 #include <llvm/Function.h>
 #include <llvm/DerivedTypes.h>
 
+#include "astnodevisitor.h"
+
 class llvm::Module;
 
 struct CodeGenBlock
@@ -65,6 +67,8 @@ class ASTNode
 public:
     virtual ~ASTNode() {}
     virtual llvm::Value * codeGen(CodeGenContext& context) = 0;
+
+    virtual void accept(ASTNodeVisitor * visitor) = 0;
 };
 
 class ExpressionNode : public ASTNode
@@ -149,6 +153,10 @@ public:
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
+
+    virtual void accept(ASTNodeVisitor * visitor) {
+        visitor->visit(this);
+    }
 
 private:
     int value;
