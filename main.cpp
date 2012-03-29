@@ -6,6 +6,68 @@
 
 #include "ast.h"
 #include "astcreator.h"
+#include "astnodevisitor.h"
+
+#include <iostream>
+using namespace std;
+
+class PrintAST : public ASTNodeVisitor
+{
+public:
+    virtual void visit(ASTNode * node) {
+        cout << "Visited ast node" << endl;
+    }
+
+    virtual void visit(ExpressionNode * node) {
+        cout << "Visited expression" << endl;
+    }
+
+    virtual void visit(StatementNode * node) {
+        cout << "Visited statement" << endl;
+    }
+
+    virtual void visit(FloatNode * node) {
+        cout << "Visited float" << endl;
+    }
+
+    virtual void visit(IdentifierNode * node) {
+        cout << "Visited identifier" << endl;
+    }
+
+    virtual void visit(BinaryOpExpression * node) {
+        cout << "Visited binary op" << endl;
+    }
+
+    virtual void visit(MethodCallExpression * node) {
+        cout << "Visited method call" << endl;
+    }
+
+    virtual void visit(BlockStatement * node) {
+        cout << "Visited block" << endl;
+    }
+
+    virtual void visit(VariableDeclaration * node) {
+        cout << "Visited var decl" << endl;
+    }
+
+    virtual void visit(MethodDeclaration * node) {
+        cout << "Visited method decl" << endl;
+    }
+
+    virtual void visit(ReturnStatement * node) {
+        cout << "Visited return stmt" << endl;
+    }
+
+    virtual void visit(AssignmentExpression * node) {
+        cout << "Visited assignment" << endl;
+    }
+
+    virtual void visit(Program * node) {
+        cout << "Visited Program" << endl;
+    }
+};
+
+
 
 int main(int /* argc */, char **  /* argv[] */)
 {
@@ -30,6 +92,9 @@ int main(int /* argc */, char **  /* argv[] */)
         CodeGenContext context;
         llvm::Value * program = root->codeGen(context);
         context.printAssembly();
+
+        PrintAST printAST;
+        root->accept(&printAST);
     }
 
     parser->free(parser);

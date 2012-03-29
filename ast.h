@@ -218,8 +218,8 @@ public:
     }
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        visitor->visit(leftExpression);
-        visitor->visit(rightExpression);
+        leftExpression->accept(visitor);
+        rightExpression->accept(visitor);
         visitor->visit(this);
     }
 private:
@@ -240,7 +240,8 @@ public:
 
     virtual void accept(ASTNodeVisitor * visitor) {
         for(std::vector<ExpressionNode *>::const_iterator iter = arguments.begin(); iter != arguments.end(); iter++) {
-            visitor->visit(*iter);
+            ExpressionNode * exprNode = *iter;
+            exprNode->accept(visitor);
         }
 
         visitor->visit(this);
@@ -259,11 +260,12 @@ public:
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        for(std::vector<ASTNode *>::const_iterator iter = statements.begin(); iter != statements.end(); iter++) {
-            visitor->visit(*iter);
-        }
-
         visitor->visit(this);
+
+        for(std::vector<ASTNode *>::const_iterator iter = statements.begin(); iter != statements.end(); iter++) {
+            ASTNode * node = *iter;
+            node->accept(visitor);
+        }
     }
 
 private:
@@ -292,7 +294,7 @@ public:
 
     virtual void accept(ASTNodeVisitor * visitor) {
         if(assingmentExpr) {
-            visitor->visit(assingmentExpr);
+            assingmentExpr->accept(visitor);
         }
 
         visitor->visit(this);
@@ -315,7 +317,7 @@ public:
 
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visit(this);
-        visitor->visit(block);
+        block->accept(visitor);
     }
 
 private:
@@ -334,7 +336,7 @@ public:
 
     virtual void accept(ASTNodeVisitor * visitor) {
         if(expression) {
-            visitor->visit(expression);
+            expression->accept(visitor);
         }
 
         visitor->visit(this);
@@ -352,7 +354,7 @@ public:
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        visitor->visit(rightExpression);
+        rightExpression->accept(visitor);
         visitor->visit(this);
     }
 
@@ -371,7 +373,8 @@ public:
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visit(this);
         for(std::vector<MethodDeclaration *>::const_iterator iter = m_methods.begin(); iter != m_methods.end(); iter++) {
-            visitor->visit(*iter);
+            MethodDeclaration * methodDecl = *iter;
+            methodDecl->accept(visitor);
         }
     }
 
