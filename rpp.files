@@ -10,3 +10,7 @@ rppLexer.h
 rppParser.c
 rppParser.h
 astnodevisitor.h
+semanticanalysis.cpp
+semanticanalysis.h
+rppcompiler.h
+rppcompiler.cpp
