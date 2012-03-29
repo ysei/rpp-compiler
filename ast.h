@@ -212,6 +212,11 @@ public:
     BinaryOpExpression(ExpressionNode * leftExpression, ExpressionNode * rightExpression, const std::string& op)
         : leftExpression(leftExpression), rightExpression(rightExpression), op(op) {}
 
+    virtual ~BinaryOpExpression() {
+        delete leftExpression;
+        delete rightExpression;
+    }
+
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual ExpressionNode::Type getType() const {
@@ -234,9 +239,14 @@ private:
 class MethodCallExpression : public ExpressionNode
 {
 public:
-    MethodCallExpression(IdentifierNode & id, std::vector<ExpressionNode *> & arguments)
+    MethodCallExpression(IdentifierNode * id, std::vector<ExpressionNode *> & arguments)
         : id(id), arguments(arguments)
     {
+    }
+
+    virtual ~MethodCallExpression() {
+        delete id;
+        std::for_each(arguments.begin(), arguments.end(), rpp::delete_pointer_element<ExpressionNode *>);
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
@@ -251,7 +261,7 @@ public:
     }
 
 private:
-    IdentifierNode id;
+    IdentifierNode * id;
     std::vector<ExpressionNode *> arguments;
 };
 
@@ -259,6 +269,10 @@ class BlockStatement : public StatementNode
 {
 public:
     BlockStatement(std::vector<ASTNode *>& statements) : statements(statements) {}
+
+    virtual ~BlockStatement() {
+        std::for_each(statements.begin(), statements.end(), rpp::delete_pointer_element<ASTNode *>);
+    }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
@@ -278,11 +292,16 @@ private:
 class VariableDeclaration : public StatementNode
 {
 public:
-    VariableDeclaration(IdentifierNode* type, IdentifierNode * id) : type(type), id(id) {}
-    VariableDeclaration(IdentifierNode* type, IdentifierNode * id, ExpressionNode * assingmentExpr)
+    VariableDeclaration(IdentifierNode* type, IdentifierNode * id, ExpressionNode * assingmentExpr = NULL)
         : type(type), id(id), assingmentExpr(assingmentExpr) {
 
         varName()->setType(varType()->idName());
+    }
+
+    virtual ~VariableDeclaration() {
+        delete type;
+        delete id;
+        delete assingmentExpr;
     }
 
     IdentifierNode * varType() const {
@@ -318,6 +337,9 @@ public:
 
     virtual ~MethodDeclaration() {
         std::for_each(arguments.begin(), arguments.end(), rpp::delete_pointer_element<VariableDeclaration*>);
+        delete name;
+        delete returnType;
+        delete block;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
@@ -339,6 +361,10 @@ class ReturnStatement : public StatementNode
 public:
     ReturnStatement(ExpressionNode * expresion) : expression(expresion) {}
 
+    virtual ~ReturnStatement() {
+        delete expression;
+    }
+
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
@@ -357,6 +383,11 @@ class AssignmentExpression : public ExpressionNode
 {
 public:
     AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : id(id), rightExpression(rightExpression) {}
+
+    virtual ~AssignmentExpression() {
+        delete id;
+        delete rightExpression;
+    }
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
