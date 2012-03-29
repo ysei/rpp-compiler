@@ -70,7 +70,7 @@ RppCompiler::RppCompiler() : m_root(NULL)
 
 RppCompiler::~RppCompiler()
 {
-
+    delete m_root;
 }
 
 void RppCompiler::compile(const char *fileName)

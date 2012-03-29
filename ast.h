@@ -5,11 +5,14 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #include <llvm/Function.h>
 #include <llvm/DerivedTypes.h>
 
 #include "astnodevisitor.h"
+
+#include "utils.h"
 
 class llvm::Module;
 
@@ -313,6 +316,10 @@ public:
                       std::vector<VariableDeclaration *> & arguments, BlockStatement * block)
         : name(name), returnType(returnType), arguments(arguments), block(block) {}
 
+    virtual ~MethodDeclaration() {
+        std::for_each(arguments.begin(), arguments.end(), rpp::delete_pointer_element<VariableDeclaration*>);
+    }
+
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
@@ -367,6 +374,10 @@ class Program : public ASTNode
 {
 public:
     Program(std::vector<MethodDeclaration *> methods) : m_methods(methods) {}
+
+    virtual ~Program() {
+        std::for_each(m_methods.begin(), m_methods.end(), rpp::delete_pointer_element<MethodDeclaration *>);
+    }
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
