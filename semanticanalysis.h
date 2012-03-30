@@ -40,6 +40,10 @@ public:
     virtual void visit(AssignmentExpression * node);
     virtual void visit(Program * node);
 
+protected:
+    void push(ExpressionNode::Type type);
+    ExpressionNode::Type pop();
+
 private:
     std::stack<ExpressionNode::Type> m_types;
     MethodContext m_methodContext;

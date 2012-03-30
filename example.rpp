@@ -1,10 +1,11 @@
 def anotherFunc(int z) : int
-    return z
+    l = z + 10 * (z - 1)
+    return l
 end
 
 def myFunc(int x, float y) : int
     dY = y
     dX = 0.5
-    z = x - y
-    return  z
+    p = x - y
+    return p
 end
