@@ -83,6 +83,31 @@ public:
         Invalid = 4
     };
 
+    static ExpressionNode::Type expressionTypeFromString(const std::string& typeString) {
+        if(typeString == "int") {
+            return ExpressionNode::Int;
+        } else if(typeString == "float") {
+            return ExpressionNode::Float;
+        }
+
+        return ExpressionNode::Invalid;
+    }
+
+    static ExpressionNode::Type combineTypes(ExpressionNode::Type left, ExpressionNode::Type right) {
+        int combined = left | right;
+        switch(combined) {
+        case 1:
+            return ExpressionNode::Int;
+
+        case 2:
+        case 3:
+            return ExpressionNode::Float;
+
+        default:
+            return ExpressionNode::Invalid;
+        }
+    }
+
     ExpressionNode() : m_type(ExpressionNode::Invalid) {}
 
     virtual ExpressionNode::Type type() const {
@@ -111,32 +136,6 @@ public:
     }
 
 protected:
-    ExpressionNode::Type combineTypes(ExpressionNode::Type left, ExpressionNode::Type right) const {
-        int combined = left | right;
-        switch(combined) {
-        case 1:
-            return ExpressionNode::Int;
-
-        case 2:
-        case 3:
-            return ExpressionNode::Float;
-
-        default:
-            return ExpressionNode::Invalid;
-        }
-    }
-
-    ExpressionNode::Type expressionTypeFromString(const std::string& typeString) {
-        if(typeString == "int") {
-            return ExpressionNode::Int;
-        } else if(typeString == "float") {
-            return ExpressionNode::Float;
-        }
-
-        return ExpressionNode::Invalid;
-    }
-
-protected:
     ExpressionNode::Type m_type;
 };
 
@@ -161,6 +160,10 @@ public:
         visitor->visit(this);
     }
 
+    int value() const {
+        return m_value;
+    }
+
 private:
     int m_value;
 };
@@ -182,6 +185,10 @@ public:
         visitor->visit(this);
     }
 
+    float value() const {
+        return m_value;
+    }
+
 private:
     float m_value;
 };
@@ -189,7 +196,7 @@ private:
 class IdentifierNode : public ExpressionNode
 {
 public:
-    IdentifierNode(const IdentifierNode& other) : m_name(other.m_name) {}
+    IdentifierNode(const IdentifierNode& other) : m_name(other.m_name), m_declared(false) {}
     virtual ~IdentifierNode() {}
     explicit IdentifierNode(const std::string& name) : m_name(name) {}
     virtual llvm::Value * codeGen(CodeGenContext& context);
@@ -202,8 +209,21 @@ public:
         visitor->visit(this);
     }
 
+    ExpressionNode::Type asType() const {
+        return ExpressionNode::expressionTypeFromString(m_name);
+    }
+
+    void setDeclared() {
+        m_declared = true;
+    }
+
+    bool isDeclared() {
+        return m_declared;
+    }
+
 private:
     std::string m_name;
+    bool m_declared;
 };
 
 class BinaryOpExpression : public ExpressionNode
@@ -230,6 +250,11 @@ public:
         m_rightExpression->accept(visitor);
         visitor->visit(this);
     }
+
+    const std::string op() const {
+        return m_op;
+    }
+
 private:
     ExpressionNode * m_leftExpression;
     ExpressionNode * m_rightExpression;
@@ -349,6 +374,18 @@ public:
         m_block->accept(visitor);
     }
 
+    const std::vector<VariableDeclaration *> & arguments() const {
+        return m_arguments;
+    }
+
+    const std::string name() const {
+        return m_name->name();
+    }
+
+    ExpressionNode::Type returnType() const {
+        return m_returnType->asType();
+    }
+
 private:
     IdentifierNode * m_name;
     IdentifierNode * m_returnType;
@@ -382,7 +419,9 @@ private:
 class AssignmentExpression : public ExpressionNode
 {
 public:
-    AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : m_id(id), m_rightExpression(rightExpression) {}
+    AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : m_id(id), m_rightExpression(rightExpression) {
+        std::cout << "Assign: " << this << std::endl;
+    }
 
     virtual ~AssignmentExpression() {
         delete m_id;
@@ -394,6 +433,14 @@ public:
     virtual void accept(ASTNodeVisitor * visitor) {
         m_rightExpression->accept(visitor);
         visitor->visit(this);
+    }
+
+    const std::string varName() {
+        return m_id->name();
+    }
+
+    IdentifierNode * id() {
+        return m_id;
     }
 
 private:

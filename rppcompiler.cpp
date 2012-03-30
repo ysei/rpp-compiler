@@ -3,6 +3,7 @@
 
 #include "ast.h"
 #include "astbuilder.h"
+#include "semanticanalysis.h"
 #include "rppcompiler.h"
 
 using namespace std;
@@ -27,7 +28,7 @@ public:
     }
 
     virtual void visit(IdentifierNode * node) {
-        cout << "Visited identifier" << endl;
+        cout << "Visited identifier [" << node->typeString() << ", " << node->name() << "]" << endl;
     }
 
     virtual void visit(BinaryOpExpression * node) {
@@ -56,6 +57,7 @@ public:
 
     virtual void visit(AssignmentExpression * node) {
         cout << "Visited assignment" << endl;
+        cout << "Visited assignment [" << node->id()->typeString() << ", " << node->id()->name() << "]" << endl;
     }
 
     virtual void visit(Program * node) {
@@ -91,6 +93,11 @@ void RppCompiler::compile(const char *fileName)
         printf("Tree: %s\n", prog.tree->toStringTree(prog.tree)->chars);
         ASTBuilder creator;
         m_root = creator.createProgram(prog.tree);
+
+        cout << "Semantic analysis" << endl;
+        SemanticAnalysis analysis;
+        m_root->accept(&analysis);
+
         PrintAST printAST;
         m_root->accept(&printAST);
     }

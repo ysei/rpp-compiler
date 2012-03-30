@@ -110,6 +110,7 @@ AssignmentExpression *ASTBuilder::createAssignment(pANTLR3_BASE_TREE node)
     assert(getNodeChildCount(node) == 2);
 
     IdentifierNode * idNode = createIdentifier(getNodeChild(node, 0));
+    idNode->setDeclared();
     ExpressionNode * exprNode = createExpression(getNodeChild(node, 1));
 
     return new AssignmentExpression(idNode, exprNode);

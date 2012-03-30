@@ -5,6 +5,7 @@ class ASTNode;
 class ExpressionNode;
 class StatementNode;
 class FloatNode;
+class IntegerNode;
 class IdentifierNode;
 class BinaryOpExpression;
 class MethodCallExpression;
@@ -22,6 +23,7 @@ public:
     virtual void visit(ExpressionNode * node) {}
     virtual void visit(StatementNode * node) {}
     virtual void visit(FloatNode * node) {}
+    virtual void visit(IntegerNode * node) {}
     virtual void visit(IdentifierNode * node) {}
     virtual void visit(BinaryOpExpression * node) {}
     virtual void visit(MethodCallExpression * node) {}
