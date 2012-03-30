@@ -77,21 +77,21 @@ void CodeGenContext::printAssembly()
 llvm::Value *IdentifierNode::codeGen(CodeGenContext &context)
 {
     cout << "Generating code for IdentifierNode" << endl;
-    Value * val = context.locals()[idName()];
+    Value * val = context.locals()[name()];
     if(val) {
-        cout << "  Using local variable: " << idName() << endl;
+        cout << "  Using local variable: " << name() << endl;
         setType(getExpressionNodeType(val->getType())); // TODO this should happen before code generation
         return val;
     }
 
-    val = context.arguments()[idName()];
+    val = context.arguments()[name()];
     if(val) {
-        cout << "  Using argument: " << idName() << endl;
+        cout << "  Using argument: " << name() << endl;
         setType(getExpressionNodeType(val->getType())); // TODO this should happen before code generation
         return val;
     }
 
-    cout << "  Can't find identifier: " << idName();
+    cout << "  Can't find identifier: " << name();
     return NULL;
 }
 
@@ -104,21 +104,21 @@ llvm::Value *VariableDeclaration::codeGen(CodeGenContext &context)
 llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
 {
     cout << "Generating code for MethodDeclaration" << std::endl;
-    cout << "  Name: " << m_name->idName() << endl;
-    cout << "  Return: " << m_returnType->idName() << endl;
+    cout << "  Name: " << m_name->name() << endl;
+    cout << "  Return: " << m_returnType->name() << endl;
 
-    Type * retType = getType(m_returnType->idName());
+    Type * retType = getType(m_returnType->name());
 
     vector<Type *> argTypes;
     cout << "  Params:" << endl;
     for(vector<VariableDeclaration *>::const_iterator iter = m_arguments.begin(); iter != m_arguments.end(); iter++) {
         IdentifierNode * varType = (*iter)->varType();
-        argTypes.push_back(getType(varType->idName().c_str()));
-        cout << "    Adding " << varType->idName() << endl;
+        argTypes.push_back(getType(varType->name().c_str()));
+        cout << "    Adding " << varType->name() << endl;
     }
 
     FunctionType * functionType = FunctionType::get(retType, makeArrayRef(argTypes), false);
-    Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, m_name->idName(), context.module());
+    Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, m_name->name(), context.module());
 
     BasicBlock * basicBlock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
 
@@ -127,7 +127,7 @@ llvm::Value *MethodDeclaration::codeGen(CodeGenContext &context)
     int argIndex = 0;
     for(Function::arg_iterator args = function->arg_begin(); args != function->arg_end(); args++, argIndex++) {
         Value * arg = args;
-        arg->setName(m_arguments[argIndex]->varName()->idName());
+        arg->setName(m_arguments[argIndex]->varName()->name());
 
         context.arguments()[arg->getName()] = arg;
     }
@@ -170,10 +170,10 @@ llvm::Value *ReturnStatement::codeGen(CodeGenContext &context)
 llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
 {
     std::cout << "Generating code for AssignmentExpression" << std::endl;
-    Value * existingVar = context.locals()[m_id->idName()];
+    Value * existingVar = context.locals()[m_id->name()];
     Value * expr = m_rightExpression->codeGen(context);
     if(!existingVar) {
-        cout << "  Creating variable " << m_id->idName() << endl;
+        cout << "  Creating variable " << m_id->name() << endl;
         cout << "    Detected type: " << m_rightExpression->typeString() << endl;
 
         llvm::Type * varType;
@@ -184,8 +184,8 @@ llvm::Value *AssignmentExpression::codeGen(CodeGenContext &context)
             varType = getType("int");
         }
 
-        existingVar = new AllocaInst(varType, m_id->idName(), context.currentBlock());
-        context.locals()[m_id->idName()] = existingVar;
+        existingVar = new AllocaInst(varType, m_id->name(), context.currentBlock());
+        context.locals()[m_id->name()] = existingVar;
     }
 
     return new StoreInst(expr, existingVar, false, context.currentBlock());

@@ -194,7 +194,7 @@ public:
     explicit IdentifierNode(const std::string& name) : m_name(name) {}
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
-    std::string idName() const {
+    std::string name() const {
         return m_name;
     }
 
@@ -295,7 +295,7 @@ public:
     VariableDeclaration(IdentifierNode* type, IdentifierNode * id, ExpressionNode * assingmentExpr = NULL)
         : m_type(type), m_id(id), m_assingmentExpr(assingmentExpr) {
 
-        varName()->setType(varType()->idName());
+        varName()->setType(varType()->name());
     }
 
     virtual ~VariableDeclaration() {
