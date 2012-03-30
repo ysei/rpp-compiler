@@ -102,7 +102,7 @@ void RppCompiler::compile(const char *fileName)
 
 }
 
-ASTNode *RppCompiler::rootAstNode() const
+ASTNode *RppCompiler::rootASTNode() const
 {
     return m_root;
 }

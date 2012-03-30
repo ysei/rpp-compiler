@@ -30,29 +30,29 @@ public:
 
     std::map<std::string, llvm::Value *>& locals()
     {
-        return blocks.top()->locals;
+        return m_blocks.top()->locals;
     }
 
     std::map<std::string, llvm::Value *>& arguments()
     {
-        return blocks.top()->arguments;
+        return m_blocks.top()->arguments;
     }
 
     llvm::BasicBlock * currentBlock()
     {
-        return blocks.top()->block;
+        return m_blocks.top()->block;
     }
 
     void pushBlock(llvm::BasicBlock * block)
     {
-        blocks.push(new CodeGenBlock());
-        blocks.top()->block = block;
+        m_blocks.push(new CodeGenBlock());
+        m_blocks.top()->block = block;
     }
 
     void popBlock()
     {
-        CodeGenBlock * top = blocks.top();
-        blocks.pop();
+        CodeGenBlock * top = m_blocks.top();
+        m_blocks.pop();
         delete top;
     }
 
@@ -61,7 +61,7 @@ public:
     void printAssembly();
 
 private:
-    std::stack<CodeGenBlock *> blocks;
+    std::stack<CodeGenBlock *> m_blocks;
     llvm::Module * m_module;
 };
 
@@ -147,11 +147,11 @@ class StatementNode : public ASTNode
 class IntegerNode : public ExpressionNode
 {
 public:
-    IntegerNode(const IntegerNode& other) : value(other.value) {
+    IntegerNode(const IntegerNode& other) : m_value(other.m_value) {
         setType(ExpressionNode::Int);
     }
 
-    explicit IntegerNode(int val) : value(val) {
+    explicit IntegerNode(int val) : m_value(val) {
         setType(ExpressionNode::Int);
     }
 
@@ -162,17 +162,17 @@ public:
     }
 
 private:
-    int value;
+    int m_value;
 };
 
 class FloatNode : public ExpressionNode
 {
 public:
-    FloatNode(const FloatNode& other) : value(other.value) {
+    FloatNode(const FloatNode& other) : m_value(other.m_value) {
         setType(ExpressionNode::Float);
     }
 
-    explicit FloatNode(float val) : value(val) {
+    explicit FloatNode(float val) : m_value(val) {
         setType(ExpressionNode::Float);
     }
 
@@ -183,19 +183,19 @@ public:
     }
 
 private:
-    float value;
+    float m_value;
 };
 
 class IdentifierNode : public ExpressionNode
 {
 public:
-    IdentifierNode(const IdentifierNode& other) : name(other.name) {}
+    IdentifierNode(const IdentifierNode& other) : m_name(other.m_name) {}
     virtual ~IdentifierNode() {}
-    explicit IdentifierNode(const std::string& name) : name(name) {}
+    explicit IdentifierNode(const std::string& name) : m_name(name) {}
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     std::string idName() const {
-        return name;
+        return m_name;
     }
 
     virtual void accept(ASTNodeVisitor * visitor) {
@@ -203,37 +203,37 @@ public:
     }
 
 private:
-    std::string name;
+    std::string m_name;
 };
 
 class BinaryOpExpression : public ExpressionNode
 {
 public:
     BinaryOpExpression(ExpressionNode * leftExpression, ExpressionNode * rightExpression, const std::string& op)
-        : leftExpression(leftExpression), rightExpression(rightExpression), op(op) {}
+        : m_leftExpression(leftExpression), m_rightExpression(rightExpression), m_op(op) {}
 
     virtual ~BinaryOpExpression() {
-        delete leftExpression;
-        delete rightExpression;
+        delete m_leftExpression;
+        delete m_rightExpression;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual ExpressionNode::Type getType() const {
-        ExpressionNode::Type leftType = leftExpression->type();
-        ExpressionNode::Type rightType = rightExpression->type();
+        ExpressionNode::Type leftType = m_leftExpression->type();
+        ExpressionNode::Type rightType = m_rightExpression->type();
         return combineTypes(leftType, rightType);
     }
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        leftExpression->accept(visitor);
-        rightExpression->accept(visitor);
+        m_leftExpression->accept(visitor);
+        m_rightExpression->accept(visitor);
         visitor->visit(this);
     }
 private:
-    ExpressionNode * leftExpression;
-    ExpressionNode * rightExpression;
-    const std::string op;
+    ExpressionNode * m_leftExpression;
+    ExpressionNode * m_rightExpression;
+    const std::string m_op;
 };
 
 class MethodCallExpression : public ExpressionNode
@@ -293,39 +293,39 @@ class VariableDeclaration : public StatementNode
 {
 public:
     VariableDeclaration(IdentifierNode* type, IdentifierNode * id, ExpressionNode * assingmentExpr = NULL)
-        : type(type), id(id), assingmentExpr(assingmentExpr) {
+        : m_type(type), m_id(id), m_assingmentExpr(assingmentExpr) {
 
         varName()->setType(varType()->idName());
     }
 
     virtual ~VariableDeclaration() {
-        delete type;
-        delete id;
-        delete assingmentExpr;
+        delete m_type;
+        delete m_id;
+        delete m_assingmentExpr;
     }
 
     IdentifierNode * varType() const {
-        return type;
+        return m_type;
     }
 
     IdentifierNode * varName() const {
-        return id;
+        return m_id;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        if(assingmentExpr) {
-            assingmentExpr->accept(visitor);
+        if(m_assingmentExpr) {
+            m_assingmentExpr->accept(visitor);
         }
 
         visitor->visit(this);
     }
 
 private:
-    IdentifierNode * type;
-    IdentifierNode * id;
-    ExpressionNode * assingmentExpr;
+    IdentifierNode * m_type;
+    IdentifierNode * m_id;
+    ExpressionNode * m_assingmentExpr;
 };
 
 class MethodDeclaration : public StatementNode
@@ -333,72 +333,72 @@ class MethodDeclaration : public StatementNode
 public:
     MethodDeclaration(IdentifierNode * name, IdentifierNode * returnType,
                       std::vector<VariableDeclaration *> & arguments, BlockStatement * block)
-        : name(name), returnType(returnType), arguments(arguments), block(block) {}
+        : m_name(name), m_returnType(returnType), m_arguments(arguments), m_block(block) {}
 
     virtual ~MethodDeclaration() {
-        std::for_each(arguments.begin(), arguments.end(), rpp::delete_pointer_element<VariableDeclaration*>);
-        delete name;
-        delete returnType;
-        delete block;
+        std::for_each(m_arguments.begin(), m_arguments.end(), rpp::delete_pointer_element<VariableDeclaration*>);
+        delete m_name;
+        delete m_returnType;
+        delete m_block;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visit(this);
-        block->accept(visitor);
+        m_block->accept(visitor);
     }
 
 private:
-    IdentifierNode * name;
-    IdentifierNode * returnType;
-    std::vector<VariableDeclaration *> arguments;
-    BlockStatement * block;
+    IdentifierNode * m_name;
+    IdentifierNode * m_returnType;
+    std::vector<VariableDeclaration *> m_arguments;
+    BlockStatement * m_block;
 };
 
 class ReturnStatement : public StatementNode
 {
 public:
-    ReturnStatement(ExpressionNode * expresion) : expression(expresion) {}
+    ReturnStatement(ExpressionNode * expresion) : m_expression(expresion) {}
 
     virtual ~ReturnStatement() {
-        delete expression;
+        delete m_expression;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        if(expression) {
-            expression->accept(visitor);
+        if(m_expression) {
+            m_expression->accept(visitor);
         }
 
         visitor->visit(this);
     }
 
 private:
-    ExpressionNode * expression;
+    ExpressionNode * m_expression;
 };
 
 class AssignmentExpression : public ExpressionNode
 {
 public:
-    AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : id(id), rightExpression(rightExpression) {}
+    AssignmentExpression(IdentifierNode * id, ExpressionNode * rightExpression) : m_id(id), m_rightExpression(rightExpression) {}
 
     virtual ~AssignmentExpression() {
-        delete id;
-        delete rightExpression;
+        delete m_id;
+        delete m_rightExpression;
     }
 
     virtual llvm::Value * codeGen(CodeGenContext &context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        rightExpression->accept(visitor);
+        m_rightExpression->accept(visitor);
         visitor->visit(this);
     }
 
 private:
-    IdentifierNode * id;
-    ExpressionNode * rightExpression;
+    IdentifierNode * m_id;
+    ExpressionNode * m_rightExpression;
 };
 
 class Program : public ASTNode

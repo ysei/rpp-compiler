@@ -11,7 +11,7 @@ public:
 
     void compile(const char * fileName);
 
-    ASTNode * rootAstNode() const;
+    ASTNode * rootASTNode() const;
 
 private:
     ASTNode * m_root;
