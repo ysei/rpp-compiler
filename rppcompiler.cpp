@@ -2,7 +2,7 @@
 #include "rppParser.h"
 
 #include "ast.h"
-#include "astcreator.h"
+#include "astbuilder.h"
 #include "rppcompiler.h"
 
 using namespace std;
@@ -89,13 +89,8 @@ void RppCompiler::compile(const char *fileName)
         fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n", parser->pParser->rec->state->errorCount);
     } else {
         printf("Tree: %s\n", prog.tree->toStringTree(prog.tree)->chars);
-        AstCreator creator;
+        ASTBuilder creator;
         m_root = creator.createProgram(prog.tree);
-        /*
-        CodeGenContext context;
-        llvm::Value * program = root->codeGen(context);
-        context.printAssembly();
-        */
         PrintAST printAST;
         m_root->accept(&printAST);
     }

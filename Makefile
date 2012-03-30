@@ -7,7 +7,7 @@ ANTLR = antlr
 
 all: rpp
 
-SRCS = main.cpp ast.cpp astcreator.cpp rppcompiler.cpp semanticanalysis.cpp
+SRCS = main.cpp ast.cpp astbuilder.cpp rppcompiler.cpp semanticanalysis.cpp
 
 OBJDIR = .obj
 OBJS := $(SRCS:%.cpp=$(OBJDIR)/%.o)

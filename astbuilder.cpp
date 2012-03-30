@@ -1,14 +1,14 @@
-#include "astcreator.h"
+#include "astbuilder.h"
 
-AstCreator::AstCreator()
+ASTBuilder::ASTBuilder()
 {
 }
 
-AstCreator::~AstCreator()
+ASTBuilder::~ASTBuilder()
 {
 }
 
-ASTNode * AstCreator::createProgram(pANTLR3_BASE_TREE node)
+ASTNode * ASTBuilder::createProgram(pANTLR3_BASE_TREE node)
 {
     assert(node);
 
@@ -26,7 +26,7 @@ ASTNode * AstCreator::createProgram(pANTLR3_BASE_TREE node)
     return new Program(methods);
 }
 
-MethodDeclaration * AstCreator::createMethodDeclaration(pANTLR3_BASE_TREE node)
+MethodDeclaration * ASTBuilder::createMethodDeclaration(pANTLR3_BASE_TREE node)
 {
     IdentifierNode * idNode = createIdentifier(getNodeChild(node, 0));
     std::vector<VariableDeclaration *> arguments = createParams(getNodeChild(node, 1));
@@ -36,7 +36,7 @@ MethodDeclaration * AstCreator::createMethodDeclaration(pANTLR3_BASE_TREE node)
     return new MethodDeclaration(idNode, returnType, arguments, blockStatement);
 }
 
-BlockStatement * AstCreator::createBlock(pANTLR3_BASE_TREE node)
+BlockStatement * ASTBuilder::createBlock(pANTLR3_BASE_TREE node)
 {
     assert(getTokenType(node) == BLOCK);
 
@@ -51,7 +51,7 @@ BlockStatement * AstCreator::createBlock(pANTLR3_BASE_TREE node)
     return new BlockStatement(statements);
 }
 
-ASTNode * AstCreator::createStatement(pANTLR3_BASE_TREE node)
+ASTNode * ASTBuilder::createStatement(pANTLR3_BASE_TREE node)
 {
     int token = getTokenType(node);
     switch(token) {
@@ -65,7 +65,7 @@ ASTNode * AstCreator::createStatement(pANTLR3_BASE_TREE node)
     return NULL;
 }
 
-ReturnStatement * AstCreator::createReturnStatement(pANTLR3_BASE_TREE node)
+ReturnStatement * ASTBuilder::createReturnStatement(pANTLR3_BASE_TREE node)
 {
     assert(getTokenType(node) == RETURN);
 
@@ -73,7 +73,7 @@ ReturnStatement * AstCreator::createReturnStatement(pANTLR3_BASE_TREE node)
     return new ReturnStatement(exprNode);
 }
 
-ExpressionNode *AstCreator::createExpression(pANTLR3_BASE_TREE node)
+ExpressionNode *ASTBuilder::createExpression(pANTLR3_BASE_TREE node)
 {
     std::cout << "Visited createExpression" << std::endl;
 
@@ -104,7 +104,7 @@ ExpressionNode *AstCreator::createExpression(pANTLR3_BASE_TREE node)
     return NULL;
 }
 
-AssignmentExpression *AstCreator::createAssignment(pANTLR3_BASE_TREE node)
+AssignmentExpression *ASTBuilder::createAssignment(pANTLR3_BASE_TREE node)
 {
     assert(getTokenType(node) == ASSIGNMENT);
     assert(getNodeChildCount(node) == 2);
@@ -115,7 +115,7 @@ AssignmentExpression *AstCreator::createAssignment(pANTLR3_BASE_TREE node)
     return new AssignmentExpression(idNode, exprNode);
 }
 
-IdentifierNode * AstCreator::createReturnType(pANTLR3_BASE_TREE node)
+IdentifierNode * ASTBuilder::createReturnType(pANTLR3_BASE_TREE node)
 {
     assert(getTokenType(node) == FUNC_RETURN_TYPE);
 
@@ -128,7 +128,7 @@ IdentifierNode * AstCreator::createReturnType(pANTLR3_BASE_TREE node)
     return astNode;
 }
 
-std::vector<VariableDeclaration *> AstCreator::createParams(pANTLR3_BASE_TREE node)
+std::vector<VariableDeclaration *> ASTBuilder::createParams(pANTLR3_BASE_TREE node)
 {
     assert(getTokenType(node) == FUNC_PARAMS);
 
@@ -141,7 +141,7 @@ std::vector<VariableDeclaration *> AstCreator::createParams(pANTLR3_BASE_TREE no
     return arguments;
 }
 
-VariableDeclaration * AstCreator::createParam(pANTLR3_BASE_TREE node)
+VariableDeclaration * ASTBuilder::createParam(pANTLR3_BASE_TREE node)
 {
     assert(getTokenType(node) == FUNC_PARAM);
 
@@ -152,7 +152,7 @@ VariableDeclaration * AstCreator::createParam(pANTLR3_BASE_TREE node)
     return astNode;
 }
 
-IdentifierNode * AstCreator::createIdentifier(pANTLR3_BASE_TREE node)
+IdentifierNode * ASTBuilder::createIdentifier(pANTLR3_BASE_TREE node)
 {
     std::cout << "RPP_ID: " << getNodeString(node) << std::endl;
     IdentifierNode * astNode = new IdentifierNode(getNodeString(node));

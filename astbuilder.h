@@ -14,11 +14,11 @@
 
 #include "rppLexer.h"
 
-class AstCreator
+class ASTBuilder
 {
 public:
-    AstCreator();
-    virtual ~AstCreator();
+    ASTBuilder();
+    virtual ~ASTBuilder();
 
     ASTNode * createProgram(pANTLR3_BASE_TREE node);
 

@@ -1,7 +1,7 @@
 ast.h
 ast.cpp
-astcreator.h
-astcreator.cpp
+astbuilder.h
+astbuilder.cpp
 main.cpp
 rpp.g
 rpp.tokens
