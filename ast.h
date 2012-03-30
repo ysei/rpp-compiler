@@ -108,14 +108,8 @@ public:
         }
     }
 
-    ExpressionNode() : m_type(ExpressionNode::Invalid) {}
-
-    virtual ExpressionNode::Type type() const {
-        return m_type;
-    }
-
-    std::string typeString() const {
-        switch(m_type) {
+    static std::string toString(ExpressionNode::Type type) {
+        switch(type) {
         case Int:
             return "int";
         case Float:
@@ -125,6 +119,16 @@ public:
         }
 
         return "Unknown";
+    }
+
+    ExpressionNode() : m_type(ExpressionNode::Invalid) {}
+
+    virtual ExpressionNode::Type type() const {
+        return m_type;
+    }
+
+    std::string typeString() const {
+        return toString(m_type);
     }
 
     void setType(const ExpressionNode::Type type) {
@@ -410,6 +414,10 @@ public:
         }
 
         visitor->visit(this);
+    }
+
+    ExpressionNode * expression() {
+        return m_expression;
     }
 
 private:

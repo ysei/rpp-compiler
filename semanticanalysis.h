@@ -41,7 +41,8 @@ public:
     virtual void visit(Program * node);
 
 protected:
-    void push(ExpressionNode::Type type);
+    template<class T>
+    void push(ExpressionNode::Type type, T msg);
     ExpressionNode::Type pop();
 
 private:
