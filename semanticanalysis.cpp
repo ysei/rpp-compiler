@@ -14,7 +14,6 @@ void SemanticAnalysis::visit(ASTNode *node)
 
 void SemanticAnalysis::visit(ExpressionNode *node)
 {
-    std::cout << "Visiting ExpressionNode" << std::endl;
 }
 
 void SemanticAnalysis::visit(StatementNode * node)
@@ -24,13 +23,11 @@ void SemanticAnalysis::visit(StatementNode * node)
 void SemanticAnalysis::visit(FloatNode * node)
 {
     push(ExpressionNode::Float, node->value());
-    std::cout << "Pushing Float: " << node->value() << std::endl;
 }
 
 void SemanticAnalysis::visit(IntegerNode * node)
 {
     push(ExpressionNode::Int, node->value());
-    std::cout << "Pushing Int: " << node->value() << std::endl;
 }
 
 void SemanticAnalysis::visit(IdentifierNode *node)
@@ -38,11 +35,9 @@ void SemanticAnalysis::visit(IdentifierNode *node)
     const std::string id = node->name();
     if(m_methodContext.locals.find(id) != m_methodContext.locals.end()) {
         node->setType(m_methodContext.locals[id]);
-        std::cout << "Pushing local: " + node->typeString() + ", " + node->name() << ", len: " << m_types.size() << std::endl;
         push(node->type(), node->name());
     } else if(m_methodContext.params.find(id) != m_methodContext.params.end()) {
         node->setType(m_methodContext.params[id]);
-        std::cout << "Pushing param: " + node->typeString() + ", " + node->name() << ", len: " << m_types.size() << std::endl;
         push(node->type(), node->name());
     }
 }
@@ -53,8 +48,9 @@ void SemanticAnalysis::visit(BinaryOpExpression *node)
     ExpressionNode::Type right = pop();
 
     ExpressionNode::Type combined = ExpressionNode::combineTypes(left, right);
-    std::cout << "BinOp: " << node->op() << ", " << combined << ", len: " << m_types.size() << std::endl;
+
     push(combined, ExpressionNode::toString(combined));
+
     if(combined == ExpressionNode::Invalid) {
         std::cerr << "Can't convert one type to another" << std::endl;
     }
