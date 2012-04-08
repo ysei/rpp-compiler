@@ -13,6 +13,7 @@
 #include "llvmcodegen.h"
 
 using namespace llvm;
+using namespace std;
 
 static Type * getType(const string & typeString) {
     if(typeString == string("int")) {
@@ -42,39 +43,23 @@ static Type * getType(ExpressionNode::Type expressionType) {
     return Type::getVoidTy(getGlobalContext());
 }
 
-CodeGenContext::CodeGenContext()
-{
-    m_module = new llvm::Module("main", llvm::getGlobalContext());
-}
-
-Module * CodeGenContext::module()
-{
-    return m_module;
-}
-
-void CodeGenContext::printAssembly()
-{
-    PassManager pm;
-#ifdef OPTIMIZE_GENERATED_CODE
-    pm.add(createCFGSimplificationPass());
-    pm.add(createInstructionCombiningPass());
-    pm.add(createPromoteMemoryToRegisterPass());
-#endif
-    pm.add(createPrintModulePass(&outs()));
-    pm.run(*m_module);
-}
-
 LLVMCodeGen::LLVMCodeGen()
 {
-
+    m_module = new llvm::Module("main", llvm::getGlobalContext());
 }
 
 LLVMCodeGen::~LLVMCodeGen()
 {
 }
 
-void LLVMCodeGen::visit(Program *node)
+void LLVMCodeGen::visitEnter(Program *node)
 {
+
+}
+
+void LLVMCodeGen::visitExit(Program *node)
+{
+
 }
 
 void LLVMCodeGen::visit(ASTNode *node)
@@ -105,6 +90,22 @@ void LLVMCodeGen::visit(IntegerNode *node)
 
 void LLVMCodeGen::visit(IdentifierNode *node)
 {
+    cout << "Generating code for IdentifierNode" << endl;
+    Value * value = locals()[node->name()];
+    if(value) {
+        cout << "  Using local variable: " << node->name() << endl;
+    }
+
+    value = arguments()[node->name()];
+    if(value) {
+        cout << "  Using argument: " << node->name() << endl;
+    }
+
+    if(value) {
+        push(value);
+    } else {
+        cerr << "Can't find identifier: " << node->name() << endl;
+    }
 }
 
 void LLVMCodeGen::visit(BinaryOpExpression *node)
@@ -116,18 +117,18 @@ void LLVMCodeGen::visit(BinaryOpExpression *node)
     Value * left = pop();
 
     Instruction::BinaryOps instr;
-
-    if(m_op == "+") {
+    string op = node->op();
+    if(op == "+") {
         instr = Instruction::Add;
-    } else if(m_op == "-") {
+    } else if(op == "-") {
         instr = Instruction::Sub;
-    } else if(m_op == "*") {
+    } else if(op == "*") {
         instr = Instruction::Mul;
-    } else if(m_op == "/") {
+    } else if(op == "/") {
         instr = Instruction::SDiv;
     }
 
-    Value * result = BinaryOperator::Create(instr, left, right, "tmp", context.currentBlock());
+    Value * result = BinaryOperator::Create(instr, left, right, "tmp", currentBlock());
     m_valuesStack.push(result);
 }
 
@@ -137,30 +138,32 @@ void LLVMCodeGen::visit(MethodCallExpression *node)
 
 void LLVMCodeGen::visit(BlockStatement *node)
 {
+    // TODO locals management should happen here
 }
 
 void LLVMCodeGen::visit(VariableDeclaration *node)
 {
 }
 
-void LLVMCodeGen::visit(MethodDeclaration *node)
+void LLVMCodeGen::visitEnter(MethodDeclaration *node)
 {
     cout << "Generating code for MethodDeclaration" << std::endl;
-    cout << "  Name: " << m_name->name() << endl;
-    cout << "  Return: " << m_returnType->name() << endl;
+    cout << "  Name: " << node->name() << endl;
+    cout << "  Return: " << ExpressionNode::toString(node->returnType()) << endl;
 
-    Type * retType = getType(m_returnType->name());
+    Type * retType = getType(node->returnType());
 
     vector<Type *> argTypes;
     cout << "  Params:" << endl;
-    for(vector<VariableDeclaration *>::const_iterator iter = m_arguments.begin(); iter != m_arguments.end(); iter++) {
+
+    for(vector<VariableDeclaration *>::const_iterator iter = node->arguments().begin(); iter != node->arguments().end(); iter++) {
         IdentifierNode * varType = (*iter)->varType();
         argTypes.push_back(getType(varType->name().c_str()));
         cout << "    Adding " << varType->name() << endl;
     }
 
     FunctionType * functionType = FunctionType::get(retType, makeArrayRef(argTypes), false);
-    Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, m_name->name(), module());
+    Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, node->name(), module());
 
     BasicBlock * basicBlock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
 
@@ -169,59 +172,54 @@ void LLVMCodeGen::visit(MethodDeclaration *node)
     int argIndex = 0;
     for(Function::arg_iterator args = function->arg_begin(); args != function->arg_end(); args++, argIndex++) {
         Value * arg = args;
-        arg->setName(m_arguments[argIndex]->varName()->name());
+        arg->setName(node->arguments()[argIndex]->varName()->name());
 
-        context.arguments()[arg->getName()] = arg;
+        arguments()[arg->getName()] = arg;
     }
-
-
-    if(m_block) {
-        m_block->codeGen(context);
-    }
-
-    context.popBlock();
 
     cout << "Code generation is done" << endl << endl;
-    return function;
+}
+
+void LLVMCodeGen::visitExit(MethodDeclaration *node)
+{
+    popBlock();
 }
 
 void LLVMCodeGen::visit(ReturnStatement *node)
 {
     cout << "Generating code for ReturnStatement" << endl;
 
-    Value * expr = NULL;
-
-    if(m_expression) {
-        cout << "  Return expression" << endl;
-        expr = m_expression->codeGen(context);
-    }
-
+    Value * expr = pop();
     ReturnInst::Create(getGlobalContext(), expr, currentBlock());
 }
 
 void LLVMCodeGen::visit(AssignmentExpression *node)
 {
     std::cout << "Generating code for AssignmentExpression" << std::endl;
-    Value * existingVar = locals()[m_id->name()];
+    Value * existingVar = locals()[node->id()->name()];
     Value * expr = pop();
 
     if(!existingVar) {
         cout << "  Generating variable " << node->id()->name() << endl;
         cout << "    Type: " << node->id()->typeString() << endl;
 
-        llvm::Type * varType;
-        if(m_rightExpression->type() != ExpressionNode::Invalid) {
-            varType = getType(node->id()->type());
-        } else {
-            cerr << "Can't figure out type of expression!!" << endl;
-            varType = getType("int");
-        }
-
-        existingVar = new AllocaInst(varType, m_id->name(), currentBlock());
-        locals()[m_id->name()] = existingVar;
+        existingVar = new AllocaInst(getType(node->type()), node->id()->name(), currentBlock());
+        locals()[node->id()->name()] = existingVar;
     }
 
     new StoreInst(expr, existingVar, false, currentBlock());
+}
+
+void LLVMCodeGen::printAssembly()
+{
+    PassManager pm;
+#ifdef OPTIMIZE_GENERATED_CODE
+    pm.add(createCFGSimplificationPass());
+    pm.add(createInstructionCombiningPass());
+    pm.add(createPromoteMemoryToRegisterPass());
+#endif
+    pm.add(createPrintModulePass(&outs()));
+    pm.run(*m_module);
 }
 
 std::map<std::string, llvm::Value *> &LLVMCodeGen::locals()
@@ -263,4 +261,9 @@ Value *LLVMCodeGen::pop()
     m_valuesStack.pop();
 
     return res;
+}
+
+llvm::Module *LLVMCodeGen::module()
+{
+    return m_module;
 }

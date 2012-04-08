@@ -148,7 +148,6 @@ public:
     IdentifierNode(const IdentifierNode& other) : m_name(other.m_name), m_declared(false) {}
     virtual ~IdentifierNode() {}
     explicit IdentifierNode(const std::string& name) : m_name(name) {}
-    virtual llvm::Value * codeGen(CodeGenContext& context);
 
     std::string name() const {
         return m_name;
@@ -221,8 +220,6 @@ public:
         std::for_each(arguments.begin(), arguments.end(), rpp::delete_pointer_element<ExpressionNode *>);
     }
 
-    virtual llvm::Value * codeGen(CodeGenContext& context);
-
     virtual void accept(ASTNodeVisitor * visitor) {
         for(std::vector<ExpressionNode *>::const_iterator iter = arguments.begin(); iter != arguments.end(); iter++) {
             ExpressionNode * exprNode = *iter;
@@ -245,8 +242,6 @@ public:
     virtual ~BlockStatement() {
         std::for_each(statements.begin(), statements.end(), rpp::delete_pointer_element<ASTNode *>);
     }
-
-    virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visit(this);
@@ -284,8 +279,6 @@ public:
         return m_id;
     }
 
-    virtual llvm::Value * codeGen(CodeGenContext& context);
-
     virtual void accept(ASTNodeVisitor * visitor) {
         if(m_assingmentExpr) {
             m_assingmentExpr->accept(visitor);
@@ -313,8 +306,6 @@ public:
         delete m_returnType;
         delete m_block;
     }
-
-    virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visitEnter(this);
@@ -349,8 +340,6 @@ public:
     virtual ~ReturnStatement() {
         delete m_expression;
     }
-
-    virtual llvm::Value * codeGen(CodeGenContext &context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
         if(m_expression) {

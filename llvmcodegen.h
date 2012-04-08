@@ -15,7 +15,8 @@ public:
     LLVMCodeGen();
     virtual ~LLVMCodeGen();
 
-    virtual void visit(Program * node);
+    virtual void visitEnter(Program * node);
+    virtual void visitExit(Program * node);
     virtual void visit(ASTNode * node);
     virtual void visit(ExpressionNode * node);
     virtual void visit(StatementNode * node);
@@ -26,15 +27,16 @@ public:
     virtual void visit(MethodCallExpression * node);
     virtual void visit(BlockStatement * node);
     virtual void visit(VariableDeclaration * node);
-    virtual void visit(MethodDeclaration * node);
+    virtual void visitEnter(MethodDeclaration * node);
+    virtual void visitExit(MethodDeclaration * node);
     virtual void visit(ReturnStatement * node);
     virtual void visit(AssignmentExpression * node);
 
     void printAssembly();
 
 protected:
-    void push(Value * value);
-    Value * pop();
+    void push(llvm::Value * value);
+    llvm::Value * pop();
 
     struct CodeGenBlock
     {
