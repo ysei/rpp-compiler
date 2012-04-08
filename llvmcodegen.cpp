@@ -94,11 +94,11 @@ void LLVMCodeGen::visit(IdentifierNode *node)
     Value * value = locals()[node->name()];
     if(value) {
         cout << "  Using local variable: " << node->name() << endl;
-    }
-
-    value = arguments()[node->name()];
-    if(value) {
-        cout << "  Using argument: " << node->name() << endl;
+    } else {
+        value = arguments()[node->name()];
+        if(value) {
+            cout << "  Using argument: " << node->name() << endl;
+        }
     }
 
     if(value) {
