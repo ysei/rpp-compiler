@@ -203,7 +203,7 @@ void LLVMCodeGen::visit(AssignmentExpression *node)
         cout << "  Generating variable " << node->id()->name() << endl;
         cout << "    Type: " << node->id()->typeString() << endl;
 
-        existingVar = new AllocaInst(getType(node->type()), node->id()->name(), currentBlock());
+        existingVar = new AllocaInst(getType(node->id()->type()), node->id()->name(), currentBlock());
         locals()[node->id()->name()] = existingVar;
     }
 

@@ -103,8 +103,9 @@ void RppCompiler::compile(const char *fileName)
         LLVMCodeGen codeGenerator;
         m_root->accept(&codeGenerator);
 
-        PrintAST printAST;
-        m_root->accept(&printAST);
+        codeGenerator.printAssembly();
+        // PrintAST printAST;
+        // m_root->accept(&printAST);
     }
 
     parser->free(parser);
