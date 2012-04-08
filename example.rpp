@@ -1,4 +1,4 @@
 def anotherFunc(int z) : int
-    k = 10
+    k = 10 + z
     return z
 end

@@ -68,7 +68,7 @@ void SemanticAnalysis::visit(VariableDeclaration *node)
 {
 }
 
-void SemanticAnalysis::visit(MethodDeclaration *node)
+void SemanticAnalysis::visitEnter(MethodDeclaration *node)
 {
     m_methodContext.clear();
 
@@ -82,6 +82,11 @@ void SemanticAnalysis::visit(MethodDeclaration *node)
     m_methodContext.returnType = node->returnType();
 }
 
+void SemanticAnalysis::visitExit(MethodDeclaration *node)
+{
+
+}
+
 void SemanticAnalysis::visit(ReturnStatement *node)
 {
 }
@@ -93,7 +98,11 @@ void SemanticAnalysis::visit(AssignmentExpression *node)
     m_methodContext.locals[node->id()->name()] = node->id()->type();
 }
 
-void SemanticAnalysis::visit(Program *node)
+void SemanticAnalysis::visitEnter(Program *node)
+{
+}
+
+void SemanticAnalysis::visitExit(Program *node)
 {
 }
 
