@@ -1,7 +1,13 @@
 #ifndef _LLVMCODEGEN_H__
 #define _LLVMCODEGEN_H__
 
+#include <map>
+#include <stack>
 #include "astnodevisitor.h"
+
+class llvm::Value;
+class llvm::Module;
+class llvm::BasicBlock;
 
 class LLVMCodeGen : public ASTNodeVisitor
 {
@@ -24,7 +30,32 @@ public:
     virtual void visit(ReturnStatement * node);
     virtual void visit(AssignmentExpression * node);
 
+    void printAssembly();
+
+protected:
+    void push(Value * value);
+    Value * pop();
+
+    struct CodeGenBlock
+    {
+        llvm::BasicBlock * block;
+        std::map<std::string, llvm::Value *> locals;
+        std::map<std::string, llvm::Value *> arguments;
+    };
+
+    llvm::Module * module();
+
+    std::map<std::string, llvm::Value *>& locals();
+    std::map<std::string, llvm::Value *>& arguments();
+    llvm::BasicBlock * currentBlock();
+
+    void pushBlock(llvm::BasicBlock * block);
+    void popBlock();
+
 private:
+    std::stack<llvm::Value *> m_valuesStack;
+    std::stack<CodeGenBlock *> m_blocks;
+    llvm::Module * m_module;
 };
 
 #endif // _LLVMCODEGEN_H__

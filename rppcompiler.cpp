@@ -4,6 +4,7 @@
 #include "ast.h"
 #include "astbuilder.h"
 #include "semanticanalysis.h"
+#include "llvmcodegen.h"
 #include "rppcompiler.h"
 
 using namespace std;
@@ -97,6 +98,10 @@ void RppCompiler::compile(const char *fileName)
         cout << "Semantic analysis" << endl;
         SemanticAnalysis analysis;
         m_root->accept(&analysis);
+
+        cout << "Code generation" << endl;
+        LLVMCodeGen codeGenerator;
+        m_root->accept(&codeGenerator);
 
         PrintAST printAST;
         m_root->accept(&printAST);

@@ -29,10 +29,12 @@ public:
     virtual void visit(MethodCallExpression * node) {}
     virtual void visit(BlockStatement * node) {}
     virtual void visit(VariableDeclaration * node) {}
-    virtual void visit(MethodDeclaration * node) {}
+    virtual void visitEnter(MethodDeclaration * node) {}
+    virtual void visitExit(MethodDeclaration * node) {}
     virtual void visit(ReturnStatement * node) {}
     virtual void visit(AssignmentExpression * node) {}
-    virtual void visit(Program * node) {}
+    virtual void visitEnter(Program * node) {}
+    virtual void visitExit(Program * node) {}
 };
 
 #endif

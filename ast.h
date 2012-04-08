@@ -16,61 +16,10 @@
 
 class llvm::Module;
 
-struct CodeGenBlock
-{
-    llvm::BasicBlock * block;
-    std::map<std::string, llvm::Value *> locals;
-    std::map<std::string, llvm::Value *> arguments;
-};
-
-class CodeGenContext
-{
-public:
-    CodeGenContext();
-
-    std::map<std::string, llvm::Value *>& locals()
-    {
-        return m_blocks.top()->locals;
-    }
-
-    std::map<std::string, llvm::Value *>& arguments()
-    {
-        return m_blocks.top()->arguments;
-    }
-
-    llvm::BasicBlock * currentBlock()
-    {
-        return m_blocks.top()->block;
-    }
-
-    void pushBlock(llvm::BasicBlock * block)
-    {
-        m_blocks.push(new CodeGenBlock());
-        m_blocks.top()->block = block;
-    }
-
-    void popBlock()
-    {
-        CodeGenBlock * top = m_blocks.top();
-        m_blocks.pop();
-        delete top;
-    }
-
-    llvm::Module * module();
-
-    void printAssembly();
-
-private:
-    std::stack<CodeGenBlock *> m_blocks;
-    llvm::Module * m_module;
-};
-
 class ASTNode
 {
 public:
     virtual ~ASTNode() {}
-    virtual llvm::Value * codeGen(CodeGenContext& context) = 0;
-
     virtual void accept(ASTNodeVisitor * visitor) = 0;
 };
 
@@ -158,8 +107,6 @@ public:
         setType(ExpressionNode::Int);
     }
 
-    virtual llvm::Value * codeGen(CodeGenContext& context);
-
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visit(this);
     }
@@ -182,8 +129,6 @@ public:
     explicit FloatNode(float val) : m_value(val) {
         setType(ExpressionNode::Float);
     }
-
-    virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
         visitor->visit(this);
@@ -240,8 +185,6 @@ public:
         delete m_leftExpression;
         delete m_rightExpression;
     }
-
-    virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual ExpressionNode::Type getType() const {
         ExpressionNode::Type leftType = m_leftExpression->type();
@@ -374,8 +317,9 @@ public:
     virtual llvm::Value * codeGen(CodeGenContext& context);
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        visitor->visit(this);
+        visitor->visitEnter(this);
         m_block->accept(visitor);
+        visitor->visitExit(this);
     }
 
     const std::vector<VariableDeclaration *> & arguments() const {
@@ -436,8 +380,6 @@ public:
         delete m_rightExpression;
     }
 
-    virtual llvm::Value * codeGen(CodeGenContext &context);
-
     virtual void accept(ASTNodeVisitor * visitor) {
         m_rightExpression->accept(visitor);
         visitor->visit(this);
@@ -465,14 +407,13 @@ public:
         std::for_each(m_methods.begin(), m_methods.end(), rpp::delete_pointer_element<MethodDeclaration *>);
     }
 
-    virtual llvm::Value * codeGen(CodeGenContext &context);
-
     virtual void accept(ASTNodeVisitor * visitor) {
-        visitor->visit(this);
+        visitor->visitEnter(this);
         for(std::vector<MethodDeclaration *>::const_iterator iter = m_methods.begin(); iter != m_methods.end(); iter++) {
             MethodDeclaration * methodDecl = *iter;
             methodDecl->accept(visitor);
         }
+        visitor->visitExit(this);
     }
 
 private:
