@@ -201,6 +201,14 @@ public:
         return m_op;
     }
 
+    const ExpressionNode * left() const {
+        return m_leftExpression;
+    }
+
+    const ExpressionNode * right() const {
+        return m_rightExpression;
+    }
+
 private:
     ExpressionNode * m_leftExpression;
     ExpressionNode * m_rightExpression;
@@ -335,7 +343,7 @@ private:
 class ReturnStatement : public StatementNode
 {
 public:
-    ReturnStatement(ExpressionNode * expresion) : m_expression(expresion) {}
+    ReturnStatement(ExpressionNode * expresion) : m_expression(expresion), m_returnType(ExpressionNode::Int) {}
 
     virtual ~ReturnStatement() {
         delete m_expression;
@@ -353,8 +361,18 @@ public:
         return m_expression;
     }
 
+
+    ExpressionNode::Type returnType() const {
+        return m_returnType;
+    }
+
+    void setReturnType(ExpressionNode::Type returnType) {
+        m_returnType = returnType;
+    }
+
 private:
     ExpressionNode * m_expression;
+    ExpressionNode::Type m_returnType;
 };
 
 class AssignmentExpression : public ExpressionNode

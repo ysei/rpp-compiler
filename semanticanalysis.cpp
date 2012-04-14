@@ -54,6 +54,8 @@ void SemanticAnalysis::visit(BinaryOpExpression *node)
     if(combined == ExpressionNode::Invalid) {
         std::cerr << "Can't convert one type to another" << std::endl;
     }
+
+    node->setType(combined);
 }
 
 void SemanticAnalysis::visit(MethodCallExpression *node)
@@ -89,6 +91,8 @@ void SemanticAnalysis::visitExit(MethodDeclaration *node)
 
 void SemanticAnalysis::visit(ReturnStatement *node)
 {
+    // TODO need to check that expression can be castable to func return type
+    node->setReturnType(m_methodContext.returnType);
 }
 
 void SemanticAnalysis::visit(AssignmentExpression *node)

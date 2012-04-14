@@ -3,11 +3,18 @@
 
 #include <map>
 #include <stack>
+#include <llvm/Instruction.h>
 #include "astnodevisitor.h"
 
 class llvm::Value;
 class llvm::Module;
 class llvm::BasicBlock;
+
+class BinaryOpFactory {
+public:
+    static llvm::Instruction::BinaryOps getIntOperator(const std::string& opString);
+    static llvm::Instruction::BinaryOps getFloatOperator(const std::string& opString);
+};
 
 class LLVMCodeGen : public ASTNodeVisitor
 {
@@ -53,6 +60,10 @@ protected:
 
     void pushBlock(llvm::BasicBlock * block);
     void popBlock();
+
+private:
+    llvm::Instruction::BinaryOps getOperator(const std::string& opString, ExpressionNode::Type type);
+    llvm::Value * castIfNeeded(llvm::Value * value, ExpressionNode::Type sourceTypeOfValue, ExpressionNode::Type targetTypeOfValue);
 
 private:
     std::stack<llvm::Value *> m_valuesStack;

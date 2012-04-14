@@ -77,7 +77,7 @@ void LLVMCodeGen::visit(StatementNode *node)
 void LLVMCodeGen::visit(FloatNode *node)
 {
     cout << "Generating code for FloatNode " << node->value() << endl;
-    Value * value = ConstantInt::get(llvm::Type::getFloatTy(getGlobalContext()), node->value(), true);
+    Value * value = ConstantFP::get(llvm::Type::getFloatTy(getGlobalContext()), node->value());
     m_valuesStack.push(value);
 }
 
@@ -112,23 +112,14 @@ void LLVMCodeGen::visit(BinaryOpExpression *node)
 {
     std::cout << "Generating code for BinaryOpExpression" << std::endl;
 
-    // TODO We should cast here if types do not match
-    Value * right = pop();
-    Value * left = pop();
+    Value * right = castIfNeeded(pop(), node->right()->type(), node->type());
+    Value * left = castIfNeeded(pop(), node->left()->type(), node->type());
 
-    Instruction::BinaryOps instr;
-    string op = node->op();
-    if(op == "+") {
-        instr = Instruction::Add;
-    } else if(op == "-") {
-        instr = Instruction::Sub;
-    } else if(op == "*") {
-        instr = Instruction::Mul;
-    } else if(op == "/") {
-        instr = Instruction::SDiv;
-    }
+    Instruction::BinaryOps instr = getOperator(node->op(), node->type());
 
-    Value * result = BinaryOperator::Create(instr, left, right, "tmp", currentBlock());
+    cout << "BinaryOpExpression type: " << node->typeString() << endl;
+
+    Value * result = BinaryOperator::Create(instr, left, right, "", currentBlock());
     m_valuesStack.push(result);
 }
 
@@ -188,9 +179,9 @@ void LLVMCodeGen::visitExit(MethodDeclaration *node)
 void LLVMCodeGen::visit(ReturnStatement *node)
 {
     cout << "Generating code for ReturnStatement" << endl;
+    Value * retValue = castIfNeeded(pop(), node->expression()->type(), node->returnType());
 
-    Value * expr = pop();
-    ReturnInst::Create(getGlobalContext(), expr, currentBlock());
+    ReturnInst::Create(getGlobalContext(), retValue, currentBlock());
 }
 
 void LLVMCodeGen::visit(AssignmentExpression *node)
@@ -250,6 +241,45 @@ void LLVMCodeGen::popBlock()
     delete top;
 }
 
+Instruction::BinaryOps LLVMCodeGen::getOperator(const string &opString, ExpressionNode::Type type)
+{
+    Instruction::BinaryOps instr;
+
+    if(type == ExpressionNode::Float) {
+        instr = BinaryOpFactory::getFloatOperator(opString);
+    } else if(type == ExpressionNode::Int) {
+        instr = BinaryOpFactory::getIntOperator(opString);
+    }
+
+    return instr;
+}
+
+Value *LLVMCodeGen::castIfNeeded(Value *value, ExpressionNode::Type sourceTypeOfValue, ExpressionNode::Type targetTypeOfValue)
+{
+    Value * targetValue = value;
+
+    if(sourceTypeOfValue == targetTypeOfValue)
+        return targetValue;
+
+    if(sourceTypeOfValue == ExpressionNode::Int) {
+        if(targetTypeOfValue == ExpressionNode::Float) {
+            targetValue = new SIToFPInst(value, Type::getFloatTy(getGlobalContext()), "", currentBlock());
+        } else {
+            cerr << "LLVMCodeGen::castIfNeeded Can't cast one type to another" << endl;
+        }
+    } else if(sourceTypeOfValue == ExpressionNode::Float) {
+        if(targetTypeOfValue == ExpressionNode::Int) {
+            targetValue = new FPToSIInst(value, getType(targetTypeOfValue), "casted", currentBlock());
+        } else {
+            cerr << "LLVMCodeGen::castIfNeeded Can't cast one type to another" << endl;
+        }
+    } else {
+        cerr << "LLVMCodeGen::castIfNeeded Can't cast one type to another" << endl;
+    }
+
+    return targetValue;
+}
+
 void LLVMCodeGen::push(Value *value)
 {
     m_valuesStack.push(value);
@@ -266,4 +296,38 @@ Value *LLVMCodeGen::pop()
 llvm::Module *LLVMCodeGen::module()
 {
     return m_module;
+}
+
+Instruction::BinaryOps BinaryOpFactory::getIntOperator(const string &opString)
+{
+    Instruction::BinaryOps instr;
+
+    if(opString == "+") {
+        instr = Instruction::Add;
+    } else if(opString == "-") {
+        instr = Instruction::Sub;
+    } else if(opString == "*") {
+        instr = Instruction::Mul;
+    } else if(opString == "/") {
+        instr = Instruction::SDiv;
+    }
+
+    return instr;
+}
+
+Instruction::BinaryOps BinaryOpFactory::getFloatOperator(const string &opString)
+{
+    Instruction::BinaryOps instr;
+
+    if(opString == "+") {
+        instr = Instruction::FAdd;
+    } else if(opString == "-") {
+        instr = Instruction::FSub;
+    } else if(opString == "*") {
+        instr = Instruction::FMul;
+    } else if(opString == "/") {
+        instr = Instruction::FDiv;
+    }
+
+    return instr;
 }
