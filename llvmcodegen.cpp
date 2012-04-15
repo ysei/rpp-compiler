@@ -144,14 +144,7 @@ void LLVMCodeGen::visitEnter(MethodDeclaration *node)
 
     Type * retType = getType(node->returnType());
 
-    vector<Type *> argTypes;
-    cout << "  Params:" << endl;
-
-    for(vector<VariableDeclaration *>::const_iterator iter = node->arguments().begin(); iter != node->arguments().end(); iter++) {
-        IdentifierNode * varType = (*iter)->varType();
-        argTypes.push_back(getType(varType->name().c_str()));
-        cout << "    Adding " << varType->name() << endl;
-    }
+    vector<Type *> argTypes = generateArgTypes(node->arguments().begin(), node->arguments().end());
 
     FunctionType * functionType = FunctionType::get(retType, makeArrayRef(argTypes), false);
     Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, node->name(), module());
@@ -239,6 +232,19 @@ void LLVMCodeGen::popBlock()
     CodeGenBlock * top = m_blocks.top();
     m_blocks.pop();
     delete top;
+}
+
+vector<Type *> LLVMCodeGen::generateArgTypes(vector<VariableDeclaration *>::const_iterator start, vector<VariableDeclaration *>::const_iterator end)
+{
+    vector<Type *> argTypes;
+
+    for(vector<VariableDeclaration *>::const_iterator& iter = start; iter != end; iter++) {
+        IdentifierNode * varType = (*iter)->varType();
+        argTypes.push_back(getType(varType->name().c_str()));
+        cout << "    Adding " << varType->name() << endl;
+    }
+
+    return argTypes;
 }
 
 Instruction::BinaryOps LLVMCodeGen::getOperator(const string &opString, ExpressionNode::Type type)

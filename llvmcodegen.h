@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stack>
+#include <vector>
 #include <llvm/Instruction.h>
 #include "astnodevisitor.h"
 
@@ -62,6 +63,8 @@ protected:
     void popBlock();
 
 private:
+    std::vector<llvm::Type *> generateArgTypes(std::vector<VariableDeclaration *>::const_iterator start,
+                                               std::vector<VariableDeclaration *>::const_iterator end);
     llvm::Instruction::BinaryOps getOperator(const std::string& opString, ExpressionNode::Type type);
     llvm::Value * castIfNeeded(llvm::Value * value, ExpressionNode::Type sourceTypeOfValue, ExpressionNode::Type targetTypeOfValue);
 
