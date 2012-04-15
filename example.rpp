@@ -1,3 +1,4 @@
 def anotherFunc(int z) : float
-    return z + 10 * 13
+    k = z + 10.0
+    return z + k
 end
