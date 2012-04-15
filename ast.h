@@ -237,6 +237,10 @@ public:
         visitor->visit(this);
     }
 
+    IdentifierNode * methodName() const {
+        return id;
+    }
+
 private:
     IdentifierNode * id;
     std::vector<ExpressionNode *> arguments;

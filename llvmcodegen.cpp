@@ -125,6 +125,7 @@ void LLVMCodeGen::visit(BinaryOpExpression *node)
 
 void LLVMCodeGen::visit(MethodCallExpression *node)
 {
+
 }
 
 void LLVMCodeGen::visit(BlockStatement *node)

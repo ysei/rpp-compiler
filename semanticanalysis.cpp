@@ -1,4 +1,8 @@
+#include <string>
+
 #include "semanticanalysis.h"
+
+using namespace std;
 
 SemanticAnalysis::SemanticAnalysis()
 {
@@ -60,6 +64,7 @@ void SemanticAnalysis::visit(BinaryOpExpression *node)
 
 void SemanticAnalysis::visit(MethodCallExpression *node)
 {
+    m_calls.push_back(node);
 }
 
 void SemanticAnalysis::visit(BlockStatement *node)
@@ -72,6 +77,7 @@ void SemanticAnalysis::visit(VariableDeclaration *node)
 
 void SemanticAnalysis::visitEnter(MethodDeclaration *node)
 {
+    m_methods.insert(pair<string, MethodDeclaration *>(node->name(), node));
     m_methodContext.clear();
 
     m_methodContext.methodName = node->name();
@@ -86,7 +92,11 @@ void SemanticAnalysis::visitEnter(MethodDeclaration *node)
 
 void SemanticAnalysis::visitExit(MethodDeclaration *node)
 {
-
+    for(vector<MethodCallExpression *>::const_iterator iter = m_calls.begin(); iter != m_calls.end(); iter++) {
+        MethodCallExpression * call = *iter;
+        string methodCallName = call->methodName()->name();
+        // m_methods.find()
+    }
 }
 
 void SemanticAnalysis::visit(ReturnStatement *node)

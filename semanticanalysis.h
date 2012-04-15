@@ -1,7 +1,9 @@
 #ifndef _SEMANTICANALYSIS_H__
 #define _SEMANTICANALYSIS_H__
 
+#include <map>
 #include <stack>
+#include <vector>
 
 #include "ast.h"
 #include "astnodevisitor.h"
@@ -50,6 +52,8 @@ protected:
 private:
     std::stack<ExpressionNode::Type> m_types;
     MethodContext m_methodContext;
+    std::vector<MethodCallExpression *> m_calls;
+    std::multimap<std::string, MethodDeclaration *> m_methods;
 };
 
 #endif // _SEMANTICANALYSIS_H__
