@@ -125,7 +125,17 @@ void LLVMCodeGen::visit(BinaryOpExpression *node)
 
 void LLVMCodeGen::visit(MethodCallExpression *node)
 {
+    Function * func = getOrCreateFunction(node->methodDeclaration());
 
+    vector<Value *> arguments;
+    for(int i = 0; i < node->arguments().size(); i++) {
+        arguments.push_back(pop());
+    }
+
+    CallInst * callInstr = CallInst::Create(func, makeArrayRef(arguments), "", currentBlock());
+    callInstr->setCallingConv(CallingConv::C);
+    callInstr->setTailCall(false);
+    push(callInstr);
 }
 
 void LLVMCodeGen::visit(BlockStatement *node)
@@ -143,13 +153,7 @@ void LLVMCodeGen::visitEnter(MethodDeclaration *node)
     cout << "  Name: " << node->name() << endl;
     cout << "  Return: " << ExpressionNode::toString(node->returnType()) << endl;
 
-    Type * retType = getType(node->returnType());
-
-    vector<Type *> argTypes = generateArgTypes(node->arguments().begin(), node->arguments().end());
-
-    FunctionType * functionType = FunctionType::get(retType, makeArrayRef(argTypes), false);
-    Function * function = Function::Create(functionType, GlobalValue::InternalLinkage, node->name(), module());
-
+    Function * function = getOrCreateFunction(node);
     BasicBlock * basicBlock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
 
     pushBlock(basicBlock);
@@ -233,6 +237,26 @@ void LLVMCodeGen::popBlock()
     CodeGenBlock * top = m_blocks.top();
     m_blocks.pop();
     delete top;
+}
+
+Function *LLVMCodeGen::getOrCreateFunction(const MethodDeclaration *node)
+{
+    string funcName = node->mangledName();
+    Function * function = module()->getFunction(funcName);
+
+    if(!function) {
+        cout << "Generating code for MethodDeclaration" << std::endl;
+        cout << "  Name: " << node->name() << endl;
+        cout << "  Return: " << ExpressionNode::toString(node->returnType()) << endl;
+
+        Type * retType = getType(node->returnType());
+
+        vector<Type *> argTypes = generateArgTypes(node->arguments().begin(), node->arguments().end());
+        FunctionType * functionType = FunctionType::get(retType, makeArrayRef(argTypes), false);
+        function = Function::Create(functionType, GlobalValue::InternalLinkage, funcName, module());
+    }
+
+    return function;
 }
 
 vector<Type *> LLVMCodeGen::generateArgTypes(vector<VariableDeclaration *>::const_iterator start, vector<VariableDeclaration *>::const_iterator end)

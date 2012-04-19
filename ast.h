@@ -70,6 +70,18 @@ public:
         return "Unknown";
     }
 
+    static bool canImplicitCast(ExpressionNode::Type from, ExpressionNode::Type to) {
+        if(from == Int && to == Float) {
+            return true;
+        }
+
+        if(from == to) {
+            return true;
+        }
+
+        return false;
+    }
+
     ExpressionNode() : m_type(ExpressionNode::Invalid) {}
 
     virtual ExpressionNode::Type type() const {
@@ -219,17 +231,17 @@ class MethodCallExpression : public ExpressionNode
 {
 public:
     MethodCallExpression(IdentifierNode * id, std::vector<ExpressionNode *> & arguments)
-        : id(id), arguments(arguments)
+        : id(id), m_arguments(arguments)
     {
     }
 
     virtual ~MethodCallExpression() {
         delete id;
-        std::for_each(arguments.begin(), arguments.end(), rpp::delete_pointer_element<ExpressionNode *>);
+        std::for_each(m_arguments.begin(), m_arguments.end(), rpp::delete_pointer_element<ExpressionNode *>);
     }
 
     virtual void accept(ASTNodeVisitor * visitor) {
-        for(std::vector<ExpressionNode *>::const_iterator iter = arguments.begin(); iter != arguments.end(); iter++) {
+        for(std::vector<ExpressionNode *>::const_iterator iter = m_arguments.begin(); iter != m_arguments.end(); iter++) {
             ExpressionNode * exprNode = *iter;
             exprNode->accept(visitor);
         }
@@ -241,9 +253,22 @@ public:
         return id;
     }
 
+    void bindTo(MethodDeclaration * methodDeclaration) {
+        m_methodDeclaration = methodDeclaration;
+    }
+
+    const MethodDeclaration * methodDeclaration() const {
+        return m_methodDeclaration;
+    }
+
+    const std::vector<ExpressionNode *> & arguments() const {
+        return m_arguments;
+    }
+
 private:
     IdentifierNode * id;
-    std::vector<ExpressionNode *> arguments;
+    std::vector<ExpressionNode *> m_arguments;
+    MethodDeclaration * m_methodDeclaration;
 };
 
 class BlockStatement : public StatementNode
@@ -308,6 +333,17 @@ private:
 class MethodDeclaration : public StatementNode
 {
 public:
+    static std::string mangledName(const std::string& funcName, const std::vector<VariableDeclaration *> & args) {
+        std::string str(funcName);
+        for(int i = 0; i < args.size(); i++) {
+            str += "_";
+            VariableDeclaration * varDecl = args[i];
+            str += varDecl->varType()->name();
+        }
+
+        return str;
+    }
+
     MethodDeclaration(IdentifierNode * name, IdentifierNode * returnType,
                       std::vector<VariableDeclaration *> & arguments, BlockStatement * block)
         : m_name(name), m_returnType(returnType), m_arguments(arguments), m_block(block) {}
@@ -335,6 +371,10 @@ public:
 
     ExpressionNode::Type returnType() const {
         return m_returnType->asType();
+    }
+
+    const std::string mangledName() const {
+        return MethodDeclaration::mangledName(m_name->name(), m_arguments);
     }
 
 private:

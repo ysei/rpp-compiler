@@ -2,8 +2,3 @@ def anotherFunc(int z) : float
     k = z + 10.0
     return z + k
 end
-
-def func1(int z) : float
-	l = 10
-	return anotherFunc(10)
-end

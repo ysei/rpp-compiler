@@ -48,11 +48,17 @@ protected:
     template<class T>
     void push(ExpressionNode::Type type, T msg);
     ExpressionNode::Type pop();
+    void bindMethodCalls();
+    MethodDeclaration *findMethodDeclaration(const MethodCallExpression * call);
+    int calculateScore(const MethodCallExpression * call, const MethodDeclaration * declaration) const;
+
+    static MethodDeclaration *findBestMatch(const std::vector<std::pair<int, MethodDeclaration *> >& candidates);
 
 private:
     std::stack<ExpressionNode::Type> m_types;
     MethodContext m_methodContext;
     std::vector<MethodCallExpression *> m_calls;
+    typedef std::multimap<std::string, MethodDeclaration *>::iterator MethodsIterator;
     std::multimap<std::string, MethodDeclaration *> m_methods;
 };
 

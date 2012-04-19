@@ -63,6 +63,7 @@ protected:
     void popBlock();
 
 private:
+    llvm::Function * getOrCreateFunction(const MethodDeclaration *node);
     std::vector<llvm::Type *> generateArgTypes(std::vector<VariableDeclaration *>::const_iterator start,
                                                std::vector<VariableDeclaration *>::const_iterator end);
     llvm::Instruction::BinaryOps getOperator(const std::string& opString, ExpressionNode::Type type);
