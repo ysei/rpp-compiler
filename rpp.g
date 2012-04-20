@@ -14,6 +14,7 @@ tokens {
 	FUNC_PARAM;
 	FUNC_BODY;
 	FUNC_DEF;
+	FUNC_CALL;
 	IF;
 	THEN;
 	ELSE;
@@ -136,14 +137,14 @@ multiplicativeExpression
 	;
 
 unaryExpression
-	:	RPP_ID '(' expression_list_by_comma?  ')'
+	:	RPP_ID '(' expression_list_by_comma?  ')' -> ^(FUNC_CALL expression_list_by_comma?)
 	|	RPP_ID '[' additiveExpression ']'
 	|	primaryExpression
 	|	'('! conditional_expression ')'!
 	;
 
 expression_list_by_comma
-	:	expression (',' expression)*
+	:	expression (','! expression)*
 	;
 
 primaryExpression
