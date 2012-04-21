@@ -32,6 +32,7 @@ public:
     std::vector<VariableDeclaration *> createParams(pANTLR3_BASE_TREE node);
     VariableDeclaration * createParam(pANTLR3_BASE_TREE node);
     IdentifierNode * createIdentifier(pANTLR3_BASE_TREE node);
+    MethodCallExpression * createMethodCall(pANTLR3_BASE_TREE node);
 };
 
 #endif

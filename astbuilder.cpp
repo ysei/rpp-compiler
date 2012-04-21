@@ -83,6 +83,8 @@ ExpressionNode *ASTBuilder::createExpression(pANTLR3_BASE_TREE node)
         return new FloatNode((float)atof(getNodeText(node)));
     } else if(getTokenType(node) == INT) {
         return new IntegerNode(atoi(getNodeText(node)));
+    } else if(getTokenType(node) == FUNC_CALL) {
+        return createMethodCall(node);
     } else {
         std::string nodeString(getNodeString(node));
 
@@ -161,3 +163,16 @@ IdentifierNode * ASTBuilder::createIdentifier(pANTLR3_BASE_TREE node)
     return astNode;
 }
 
+MethodCallExpression *ASTBuilder::createMethodCall(pANTLR3_BASE_TREE node)
+{
+    assert(getTokenType(node) == FUNC_CALL);
+    assert(getNodeChildCount(node) > 0); // function name should be there at least
+
+    IdentifierNode * methodName = createIdentifier(getNodeChild(node, 0));
+    std::vector<ExpressionNode *> params;
+    for(int i = 1; i < getNodeChildCount(node); i++) {
+        params.push_back(createExpression(getNodeChild(node, i)));
+    }
+
+    return new MethodCallExpression(methodName, params);
+}

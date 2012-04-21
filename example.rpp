@@ -1,4 +1,9 @@
+def func(int k) : int
+    return 10
+end
+
 def anotherFunc(int z) : float
+    l = func(10) + func(123)
     k = z + 10.0
     return z + k
 end

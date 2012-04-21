@@ -137,7 +137,7 @@ multiplicativeExpression
 	;
 
 unaryExpression
-	:	RPP_ID '(' expression_list_by_comma?  ')' -> ^(FUNC_CALL expression_list_by_comma?)
+	:	RPP_ID '(' expression_list_by_comma?  ')' -> ^(FUNC_CALL RPP_ID expression_list_by_comma?)
 	|	RPP_ID '[' additiveExpression ']'
 	|	primaryExpression
 	|	'('! conditional_expression ')'!
