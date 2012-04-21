@@ -3,6 +3,7 @@
 
 #include "ast.h"
 #include "astbuilder.h"
+#include "bindmethods.h"
 #include "semanticanalysis.h"
 #include "llvmcodegen.h"
 #include "rppcompiler.h"
@@ -94,6 +95,10 @@ void RppCompiler::compile(const char *fileName)
         printf("Tree: %s\n", prog.tree->toStringTree(prog.tree)->chars);
         ASTBuilder creator;
         m_root = creator.createProgram(prog.tree);
+
+        cout << "Binding methods" << endl;
+        BindMethods bindMethods;
+        m_root->accept(&bindMethods);
 
         cout << "Semantic analysis" << endl;
         SemanticAnalysis analysis;

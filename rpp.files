@@ -17,3 +17,5 @@ rppcompiler.cpp
 utils.h
 llvmcodegen.h
 llvmcodegen.cpp
+bindmethods.h
+bindmethods.cpp

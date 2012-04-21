@@ -3,7 +3,7 @@ def func(int k) : int
 end
 
 def anotherFunc(int z) : float
-    l = func(10) + func(123)
+    l = func(10) + 0.1
     k = z + 10.0
     return z + k
 end
