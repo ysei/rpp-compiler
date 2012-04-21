@@ -50,6 +50,7 @@ LLVMCodeGen::LLVMCodeGen()
 
 LLVMCodeGen::~LLVMCodeGen()
 {
+    delete m_module;
 }
 
 void LLVMCodeGen::visitEnter(Program *node)
