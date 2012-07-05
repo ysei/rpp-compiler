@@ -33,8 +33,8 @@ package org.dubikdev.toycompiler;
 @lexer::header{
 package org.dubikdev.toycompiler;
 }
-*/
 
+*/
 prog: NEWLINE* ( progElem ((NEWLINE)+ | EOF))* -> ^(PROGRAM progElem*)
 	;
 
@@ -73,7 +73,7 @@ funcBodyElement
 
 if_stmt
 	:	'if' expression NEWLINE+ thenBody=funcBody? ('else' NEWLINE+ elseBody=funcBody?)? 'end'
-			-> ^(IF expression ^(THEN $thenBody?) ^(ELSE $elseBody?)?)
+			-> ^(IF expression ^(THEN $thenBody?) ^(ELSE $elseBody?))
 	;
 
 while_stmt

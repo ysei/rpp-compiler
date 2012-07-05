@@ -60,6 +60,9 @@ ASTNode * ASTBuilder::createStatement(pANTLR3_BASE_TREE node)
 
     case ASSIGNMENT:
         return createAssignment(node);
+
+    case IF:
+        return createIfStatement(node);
     }
 
     return NULL;
@@ -88,7 +91,8 @@ ExpressionNode *ASTBuilder::createExpression(pANTLR3_BASE_TREE node)
     } else {
         std::string nodeString(getNodeString(node));
 
-        if(nodeString == "+" || nodeString == "-" || nodeString == "*" || nodeString == "/") {
+        if(nodeString == "+" || nodeString == "-" || nodeString == "*" || nodeString == "/"
+                || nodeString == "<" || nodeString == ">" || nodeString == "==") {
             if(getNodeChildCount(node) == 1) {
                 std::cout << "Error: unary operations currently not supported" << std::endl;
                 return NULL;
@@ -175,4 +179,16 @@ MethodCallExpression *ASTBuilder::createMethodCall(pANTLR3_BASE_TREE node)
     }
 
     return new MethodCallExpression(methodName, params);
+}
+
+IfStatement *ASTBuilder::createIfStatement(pANTLR3_BASE_TREE node)
+{
+    assert(getTokenType(node) == IF);
+    assert(getNodeChildCount(node) == 3); // Condition, then stmt, else stmt
+
+    ExpressionNode * condition = createExpression(getNodeChild(node, 0));
+    BlockStatement * thenStmt = createBlock(getNodeChild(getNodeChild(node, 1), 0));
+    BlockStatement * elseStmt = createBlock(getNodeChild(getNodeChild(node, 2), 0));
+
+    return new IfStatement(condition, thenStmt, elseStmt);
 }

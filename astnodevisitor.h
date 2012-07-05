@@ -14,6 +14,7 @@ class VariableDeclaration;
 class MethodDeclaration;
 class ReturnStatement;
 class AssignmentExpression;
+class IfStatement;
 class Program;
 
 class ASTNodeVisitor
@@ -33,6 +34,8 @@ public:
     virtual void visitExit(MethodDeclaration * node) {}
     virtual void visit(ReturnStatement * node) {}
     virtual void visit(AssignmentExpression * node) {}
+    virtual void visitEnter(IfStatement * node) {}
+    virtual void visitExit(IfStatement * node) {}
     virtual void visitEnter(Program * node) {}
     virtual void visitExit(Program * node) {}
 };

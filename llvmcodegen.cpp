@@ -35,7 +35,6 @@ static Type * getType(ExpressionNode::Type expressionType) {
         return Type::getInt32Ty(getGlobalContext());
     case ExpressionNode::Float:
         return Type::getFloatTy(getGlobalContext());
-
     default:
         cerr << "getType - unknown type" << endl;
     }
@@ -116,11 +115,18 @@ void LLVMCodeGen::visit(BinaryOpExpression *node)
     Value * right = castIfNeeded(pop(), node->right()->type(), node->type());
     Value * left = castIfNeeded(pop(), node->left()->type(), node->type());
 
-    Instruction::BinaryOps instr = getOperator(node->op(), node->type());
 
-    cout << "BinaryOpExpression type: " << node->typeString() << endl;
+    Value * result = NULL;
+    if(isLogicalOp(node->op())) {
 
-    Value * result = BinaryOperator::Create(instr, left, right, "", currentBlock());
+    } else {
+        Instruction::BinaryOps instr = getOperator(node->op(), node->type());
+
+        cout << "BinaryOpExpression type: " << node->typeString() << endl;
+
+        result = BinaryOperator::Create(instr, left, right, "", currentBlock());
+    }
+
     m_valuesStack.push(result);
 }
 
@@ -142,6 +148,7 @@ void LLVMCodeGen::visit(MethodCallExpression *node)
 void LLVMCodeGen::visit(BlockStatement *node)
 {
     // TODO locals management should happen here
+    cout << "LLVMCodeGen::visit(BlockStatement *node) - visiting block statement" << endl;
 }
 
 void LLVMCodeGen::visit(VariableDeclaration *node)
@@ -198,6 +205,20 @@ void LLVMCodeGen::visit(AssignmentExpression *node)
     }
 
     new StoreInst(expr, existingVar, false, currentBlock());
+}
+
+void LLVMCodeGen::visitEnter(IfStatement *node)
+{
+    cout << "LLVMCodeGen::visit(IfStatement *node) - entering if statement" << endl;
+
+    Value * expr = pop();
+    Value * zero = ConstantInt::get(llvm::Type::getInt32Ty(getGlobalContext()), 0, true);
+    ICmpInst * cmp = new ICmpInst(*currentBlock(), ICmpInst::ICMP_SLT, expr, zero, "");
+}
+
+void LLVMCodeGen::visitExit(IfStatement *node)
+{
+    cout << "LLVMCodeGen::visit(IfStatement *node) - exiting if statement" << endl;
 }
 
 void LLVMCodeGen::printAssembly()
@@ -286,6 +307,16 @@ Instruction::BinaryOps LLVMCodeGen::getOperator(const string &opString, Expressi
     return instr;
 }
 
+CmpInst::Predicate LLVMCodeGen::getLogicalOperator(const string &predicateString, ExpressionNode::Type type)
+{
+    CmpInst::Predicate instr;
+    if(type == ExpressionNode::Float) {
+        instr = BinaryOpFactory::getFloatPredicate(predicateString);
+    } else if(type == ExpressionNode::Int) {
+        instr = BinaryOpFactory::getIntPredicate(predicateString);
+    }
+}
+
 Value *LLVMCodeGen::castIfNeeded(Value *value, ExpressionNode::Type sourceTypeOfValue, ExpressionNode::Type targetTypeOfValue)
 {
     Value * targetValue = value;
@@ -310,6 +341,15 @@ Value *LLVMCodeGen::castIfNeeded(Value *value, ExpressionNode::Type sourceTypeOf
     }
 
     return targetValue;
+}
+
+bool LLVMCodeGen::isLogicalOp(const string &opString)
+{
+    if(opString == "<" || opString == ">" || opString == "==" || opString == "&&" || opString == "||") {
+        return true;
+    }
+
+    return false;
 }
 
 void LLVMCodeGen::push(Value *value)
@@ -362,4 +402,14 @@ Instruction::BinaryOps BinaryOpFactory::getFloatOperator(const string &opString)
     }
 
     return instr;
+}
+
+CmpInst::Predicate BinaryOpFactory::getIntPredicate(const string &opString)
+{
+
+}
+
+CmpInst::Predicate BinaryOpFactory::getFloatPredicate(const string &opString)
+{
+
 }

@@ -1,9 +1,11 @@
 def func(int k) : int
+    l = 0
+    
+	if k < 5
+		l = 10
+	else
+		l = 20
+	end
+	
     return 10
-end
-
-def anotherFunc(int z) : float
-    l = func(10) + 0.1
-    k = z + 10.0
-    return z + k
 end

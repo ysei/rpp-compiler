@@ -33,6 +33,7 @@ public:
     VariableDeclaration * createParam(pANTLR3_BASE_TREE node);
     IdentifierNode * createIdentifier(pANTLR3_BASE_TREE node);
     MethodCallExpression * createMethodCall(pANTLR3_BASE_TREE node);
+    IfStatement * createIfStatement(pANTLR3_BASE_TREE node);
 };
 
 #endif

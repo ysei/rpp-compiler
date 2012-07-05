@@ -449,6 +449,34 @@ private:
     ExpressionNode * m_rightExpression;
 };
 
+class IfStatement : public StatementNode
+{
+public:
+    IfStatement(ExpressionNode * condition, BlockStatement * thenBlock, BlockStatement * elseBlock)
+        :m_condition(condition), m_thenBlock(thenBlock), m_elseBlock(elseBlock) {
+
+    }
+
+    virtual ~IfStatement() {
+        delete m_condition;
+        delete m_thenBlock;
+        delete m_elseBlock;
+    }
+
+    virtual void accept(ASTNodeVisitor *visitor) {
+        m_condition->accept(visitor);
+        visitor->visitEnter(this);
+        m_thenBlock->accept(visitor);
+        m_elseBlock->accept(visitor);
+        visitor->visitExit(this);
+    }
+
+private:
+    ExpressionNode * m_condition;
+    BlockStatement * m_thenBlock;
+    BlockStatement * m_elseBlock;
+};
+
 class Program : public ASTNode
 {
 public:
