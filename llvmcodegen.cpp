@@ -35,6 +35,9 @@ static Type * getType(ExpressionNode::Type expressionType) {
         return Type::getInt32Ty(getGlobalContext());
     case ExpressionNode::Float:
         return Type::getFloatTy(getGlobalContext());
+    case ExpressionNode::Boolean:
+        return Type::getInt1Ty(getGlobalContext());
+
     default:
         cerr << "getType - unknown type" << endl;
     }
@@ -85,6 +88,18 @@ void LLVMCodeGen::visit(IntegerNode *node)
 {
     cout << "Generating code for IntegerNode " << node->value() << endl;
     Value * value = ConstantInt::get(llvm::Type::getInt32Ty(getGlobalContext()), node->value(), true);
+    m_valuesStack.push(value);
+}
+
+void LLVMCodeGen::visit(BooleanNode *node)
+{
+    cout << "Generating code for BooleanNode " << node->value() << endl;
+    Value * value;
+    if(node->value()) {
+        value = ConstantInt::getTrue(getGlobalContext());
+    } else {
+        value = ConstantInt::getFalse(getGlobalContext());
+    }
     m_valuesStack.push(value);
 }
 

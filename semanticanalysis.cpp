@@ -34,6 +34,11 @@ void SemanticAnalysis::visit(IntegerNode * node)
     push(ExpressionNode::Int, node->value());
 }
 
+void SemanticAnalysis::visit(BooleanNode *node)
+{
+    push(ExpressionNode::Boolean, node->value());
+}
+
 void SemanticAnalysis::visit(IdentifierNode *node)
 {
     const std::string id = node->name();

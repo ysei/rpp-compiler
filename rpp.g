@@ -2,27 +2,27 @@ grammar rpp;
 
 options
 {
-	output = AST;
-	language = C;
-	k = 3;
+        output = AST;
+        language = C;
+        k = 3;
 }
 
 tokens {
-	BLOCK;
-	FUNC_RETURN_TYPE;
-	FUNC_PARAMS;
-	FUNC_PARAM;
-	FUNC_BODY;
-	FUNC_DEF;
-	FUNC_CALL;
-	IF;
-	THEN;
-	ELSE;
-	WHILE;
-	RETURN;
-	ASSIGNMENT;
-	BINOP;
-	PROGRAM;
+        BLOCK;
+        FUNC_RETURN_TYPE;
+        FUNC_PARAMS;
+        FUNC_PARAM;
+        FUNC_BODY;
+        FUNC_DEF;
+        FUNC_CALL;
+        IF;
+        THEN;
+        ELSE;
+        WHILE;
+        RETURN;
+        ASSIGNMENT;
+        BINOP;
+        PROGRAM;
 }
 
 /*
@@ -36,153 +36,158 @@ package org.dubikdev.toycompiler;
 
 */
 prog: NEWLINE* ( progElem ((NEWLINE)+ | EOF))* -> ^(PROGRAM progElem*)
-	;
+        ;
 
 progElem
-	:	statement
-	|	funcDecl
-	;
+        :	statement
+        |	funcDecl
+        ;
 
 statement
-	: expression	
-	;
+        : expression
+        ;
 
 funcDecl
-	: 'def'	RPP_ID ('(' funcParamDecl (',' funcParamDecl)* ')' )? funcReturnDecl? NEWLINE+ funcBody? 'end' -> ^(FUNC_DEF RPP_ID ^(FUNC_PARAMS funcParamDecl*) ^(FUNC_RETURN_TYPE funcReturnDecl?) funcBody?)
-	;
+        : 'def'	RPP_ID ('(' funcParamDecl (',' funcParamDecl)* ')' )? funcReturnDecl? NEWLINE+ funcBody? 'end' -> ^(FUNC_DEF RPP_ID ^(FUNC_PARAMS funcParamDecl*) ^(FUNC_RETURN_TYPE funcReturnDecl?) funcBody?)
+        ;
 
 funcParamDecl
-	: TYPE RPP_ID -> ^(FUNC_PARAM TYPE RPP_ID)
-	;
+        : TYPE RPP_ID -> ^(FUNC_PARAM TYPE RPP_ID)
+        ;
 
 funcReturnDecl
-	: ':'! TYPE^
-	;
+        : ':'! TYPE^
+        ;
 
 funcBody
-	: funcBodyElement+ -> ^(BLOCK funcBodyElement+)
-	;
-	
+        : funcBodyElement+ -> ^(BLOCK funcBodyElement+)
+        ;
+
 funcBodyElement
-	: assignment NEWLINE!+
-	| conditional_expression NEWLINE!+
-	| 'return' constant_expression NEWLINE+ -> ^(RETURN constant_expression)
-	| if_stmt NEWLINE!+
-	| while_stmt NEWLINE!+
-	;	
+        : assignment NEWLINE!+
+        | conditional_expression NEWLINE!+
+        | 'return' constant_expression NEWLINE+ -> ^(RETURN constant_expression)
+        | if_stmt NEWLINE!+
+        | while_stmt NEWLINE!+
+        ;
 
 if_stmt
-	:	'if' expression NEWLINE+ thenBody=funcBody? ('else' NEWLINE+ elseBody=funcBody?)? 'end'
-			-> ^(IF expression ^(THEN $thenBody?) ^(ELSE $elseBody?))
-	;
+        :	'if' expression NEWLINE+ thenBody=funcBody? ('else' NEWLINE+ elseBody=funcBody?)? 'end'
+                        -> ^(IF expression ^(THEN $thenBody?) ^(ELSE $elseBody?))
+        ;
 
 while_stmt
-	: 'while' expression NEWLINE+ funcBody? 'end' -> ^(WHILE expression ^(BLOCK funcBody?))
-	;	
-	
+        : 'while' expression NEWLINE+ funcBody? 'end' -> ^(WHILE expression ^(BLOCK funcBody?))
+        ;
+
 range_boundary
-	:	(RPP_ID | INT)
-	;
-	
+        :	(RPP_ID | INT)
+        ;
+
 constant_expression
-	:	conditional_expression
-	;
+        :	conditional_expression
+        ;
 
 expression
-	:	assignment
-	|	conditional_expression
-	;
+        :	assignment
+        |	conditional_expression
+        ;
 
 conditional_expression
-	: logical_or_expression
-	;
+        : logical_or_expression
+        ;
 
 logical_or_expression
-	: logical_and_expression ('||'^ logical_and_expression)*
-	;
+        : logical_and_expression ('||'^ logical_and_expression)*
+        ;
 
 logical_and_expression
-	: inclusive_or_expression ('&&'^ inclusive_or_expression)*
-	;
+        : inclusive_or_expression ('&&'^ inclusive_or_expression)*
+        ;
 
 inclusive_or_expression
-	: exclusive_or_expression ('|'^ exclusive_or_expression)*
-	;
+        : exclusive_or_expression ('|'^ exclusive_or_expression)*
+        ;
 
 exclusive_or_expression
-	: and_expression ('^'^ and_expression)*
-	;
+        : and_expression ('^'^ and_expression)*
+        ;
 
 and_expression
-	: equality_expression ('&'^ equality_expression)*
-	;
+        : equality_expression ('&'^ equality_expression)*
+        ;
 equality_expression
-	: relational_expression (('=='^ | '!='^ ) relational_expression)*
-	;
+        : relational_expression (('=='^ | '!='^ ) relational_expression)*
+        ;
 
 relational_expression
-	: shift_expression (('<'^ | '>'^ | '<='^ | '>='^ ) shift_expression)*
-	;
+        : shift_expression (('<'^ | '>'^ | '<='^ | '>='^ ) shift_expression)*
+        ;
 
 shift_expression
-	: additiveExpression (('<<'^| '>>'^) additiveExpression)*
-	;
+        : additiveExpression (('<<'^| '>>'^) additiveExpression)*
+        ;
 
 additiveExpression
-	:	multiplicativeExpression ( ( '+'^ | '-'^ ) multiplicativeExpression)*
-		;
+        :	multiplicativeExpression ( ( '+'^ | '-'^ ) multiplicativeExpression)*
+                ;
 
 multiplicativeExpression
-	:	unaryExpression ( '*'^ unaryExpression | '/'^ unaryExpression)*
-	;
+        :	unaryExpression ( '*'^ unaryExpression | '/'^ unaryExpression)*
+        ;
 
 unaryExpression
-	:	RPP_ID '(' expression_list_by_comma?  ')' -> ^(FUNC_CALL RPP_ID expression_list_by_comma?)
-	|	RPP_ID '[' additiveExpression ']'
-	|	primaryExpression
-	|	'('! conditional_expression ')'!
-	;
+        :	RPP_ID '(' expression_list_by_comma?  ')' -> ^(FUNC_CALL RPP_ID expression_list_by_comma?)
+        |	RPP_ID '[' additiveExpression ']'
+        |	primaryExpression
+        |	'('! conditional_expression ')'!
+        ;
 
 expression_list_by_comma
-	:	expression (','! expression)*
-	;
+        :	expression (','! expression)*
+        ;
 
 primaryExpression
-	:	RPP_ID
-	|	INT
-	|       FLOAT
-	|	STRING
-	;
+        :       BOOLEAN
+        |	INT
+        |       FLOAT
+        |	STRING
+        |       RPP_ID
+        ;
 
 argument_expression_list
-	: additiveExpression (',' additiveExpression)*
-	;
+        : additiveExpression (',' additiveExpression)*
+        ;
 
 assignment
-	:	RPP_ID '=' expression -> ^(ASSIGNMENT RPP_ID expression)
-	;
+        :	RPP_ID '=' expression -> ^(ASSIGNMENT RPP_ID expression)
+        ;
 lvalue
-	:	UNARY_OPERATOR
-	;
+        :	UNARY_OPERATOR
+        ;
 
 TYPE	:	'int'
-	|	'float'
-	|	'boolean'
-	|	'String'
-	|	'Array'
-	|	'Hash'
-	;
+        |	'float'
+        |	'boolean'
+        |	'String'
+        |	'Array'
+        |	'Hash'
+        ;
 
 UNARY_OPERATOR
-	:	'-'
-	|	'!'
-	;
+        :	'-'
+        |	'!'
+        ;
 
 NEWLINE
-	:	'\r'
-	|	'\n'
-	|	'\r\n'
-	;
+        :	'\r'
+        |	'\n'
+        |	'\r\n'
+        ;
+
+BOOLEAN : 'true'
+        | 'false'
+        ;
 
 RPP_ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
@@ -206,16 +211,16 @@ STRING
         |   '"' (ESC|~('\\'|'\n'|'"'))* '"'
         |   '\'' (ESC|~('\\'|'\n'|'\''))* '\''
         )
-	;
+        ;
 
 fragment
 ESC
-	:	'\\' .
-	;
-   	
+        :	'\\' .
+        ;
+
 ASSIGNMENT_OPERATOR
-	:	'='
-	;
+        :	'='
+        ;
 
 fragment
 EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;

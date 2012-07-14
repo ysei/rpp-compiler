@@ -88,6 +88,8 @@ ExpressionNode *ASTBuilder::createExpression(pANTLR3_BASE_TREE node)
         return new IntegerNode(atoi(getNodeText(node)));
     } else if(getTokenType(node) == FUNC_CALL) {
         return createMethodCall(node);
+    } else if(getTokenType(node) == BOOLEAN) {
+        return new BooleanNode(getNodeText(node)[0] == 't');
     } else {
         std::string nodeString(getNodeString(node));
 

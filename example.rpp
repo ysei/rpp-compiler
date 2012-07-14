@@ -1,11 +1,5 @@
-def func(int k) : int
-    l = 0
-    
-	if k < 5
-		l = 10
-	else
-		l = 20
-	end
-	
+def func(int k) : boolean
+    l = false
+
     return 10
 end

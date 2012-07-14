@@ -29,7 +29,8 @@ public:
     enum Type {
         Int = 1,
         Float = 2,
-        Invalid = 4
+        Boolean = 4,
+        Invalid = 8
     };
 
     static ExpressionNode::Type expressionTypeFromString(const std::string& typeString) {
@@ -37,6 +38,8 @@ public:
             return ExpressionNode::Int;
         } else if(typeString == "float") {
             return ExpressionNode::Float;
+        } else if(typeString == "boolean") {
+            return ExpressionNode::Boolean;
         }
 
         return ExpressionNode::Invalid;
@@ -63,6 +66,8 @@ public:
             return "int";
         case Float:
             return "float";
+        case Boolean:
+            return "boolean";
         case Invalid:
             return "Invalid";
         }
@@ -152,6 +157,29 @@ public:
 
 private:
     float m_value;
+};
+
+class BooleanNode : public ExpressionNode
+{
+public:
+    BooleanNode(const BooleanNode& other) : m_value(other.m_value) {
+        setType(ExpressionNode::Boolean);
+    }
+
+    explicit BooleanNode(bool val) : m_value(val) {
+        setType(ExpressionNode::Boolean);
+    }
+
+    virtual void accept(ASTNodeVisitor *visitor) {
+        visitor->visit(this);
+    }
+
+    bool value() const {
+        return m_value;
+    }
+
+private:
+    bool m_value;
 };
 
 class IdentifierNode : public ExpressionNode
