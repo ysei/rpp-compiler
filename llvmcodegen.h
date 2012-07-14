@@ -65,6 +65,7 @@ protected:
     std::map<std::string, llvm::Value *>& locals();
     std::map<std::string, llvm::Value *>& arguments();
     llvm::BasicBlock * currentBlock();
+    void updateBlock(llvm::BasicBlock * block);
 
     void pushBlock(llvm::BasicBlock * block);
     void popBlock();
@@ -77,6 +78,9 @@ private:
     llvm::CmpInst::Predicate getLogicalOperator(const std::string& opString, ExpressionNode::Type type);
     llvm::Value * castIfNeeded(llvm::Value * value, ExpressionNode::Type sourceTypeOfValue, ExpressionNode::Type targetTypeOfValue);
     bool isLogicalOp(const std::string& opString);
+
+    llvm::Value * generateLogicalAndCode(llvm::Value * left, llvm::Value * right);
+    llvm::Value * generateLogicalOrCode(llvm::Value * left, llvm::Value * right);
 
 private:
     std::stack<llvm::Value *> m_valuesStack;

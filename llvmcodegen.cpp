@@ -130,10 +130,13 @@ void LLVMCodeGen::visit(BinaryOpExpression *node)
     Value * right = castIfNeeded(pop(), node->right()->type(), node->type());
     Value * left = castIfNeeded(pop(), node->left()->type(), node->type());
 
-
     Value * result = NULL;
     if(isLogicalOp(node->op())) {
-
+        if(node->op() == "&&") {
+            result = generateLogicalAndCode(left, right);
+        } else if(node->op() == "||") {
+            result = generateLogicalOrCode(left, right);
+        }
     } else {
         Instruction::BinaryOps instr = getOperator(node->op(), node->type());
 
@@ -263,6 +266,11 @@ llvm::BasicBlock *LLVMCodeGen::currentBlock()
     return m_blocks.top()->block;
 }
 
+void LLVMCodeGen::updateBlock(BasicBlock *block)
+{
+    m_blocks.top()->block = block;
+}
+
 void LLVMCodeGen::pushBlock(llvm::BasicBlock *block)
 {
     m_blocks.push(new CodeGenBlock());
@@ -365,6 +373,56 @@ bool LLVMCodeGen::isLogicalOp(const string &opString)
     }
 
     return false;
+}
+
+Value * LLVMCodeGen::generateLogicalAndCode(Value *left, Value *right)
+{
+    BasicBlock * condBlock = currentBlock();
+    BasicBlock * splitBlock = BasicBlock::Create(getGlobalContext(), "splitPoint", currentBlock()->getParent(), NULL);
+    BasicBlock * mergeBlock = BasicBlock::Create(getGlobalContext(), "mergePoint", currentBlock()->getParent(), NULL);
+
+    BranchInst::Create(splitBlock, mergeBlock, left, condBlock);
+
+    CastInst * intl = new TruncInst(right, Type::getInt1Ty(getGlobalContext()),"", splitBlock);
+    BranchInst::Create(mergeBlock, splitBlock);
+
+    PHINode * phiNode = PHINode::Create(Type::getInt1Ty(getGlobalContext()), 2, "", mergeBlock);
+
+    Constant* false_const = ConstantInt::getFalse(Type::getInt1Ty(getGlobalContext()));
+
+    phiNode->addIncoming(false_const, condBlock);
+    phiNode->addIncoming(intl, splitBlock);
+
+    BasicBlock * entryBlock = BasicBlock::Create(getGlobalContext(), "entry", currentBlock()->getParent());
+    updateBlock(entryBlock);
+
+    CastInst * res = new ZExtInst(phiNode, IntegerType::get(getGlobalContext(), 8), "res", currentBlock());
+    return res;
+}
+
+Value * LLVMCodeGen::generateLogicalOrCode(Value *left, Value *right)
+{
+    BasicBlock * condBlock = currentBlock();
+    BasicBlock * splitBlock = BasicBlock::Create(getGlobalContext(), "splitPoint", currentBlock()->getParent(), NULL);
+    BasicBlock * mergeBlock = BasicBlock::Create(getGlobalContext(), "mergePoint", currentBlock()->getParent(), NULL);
+
+    BranchInst::Create(mergeBlock, splitBlock, left, condBlock);
+
+    CastInst * intl = new TruncInst(right, Type::getInt1Ty(getGlobalContext()),"", splitBlock);
+    BranchInst::Create(mergeBlock, splitBlock);
+
+    PHINode * phiNode = PHINode::Create(Type::getInt1Ty(getGlobalContext()), 2, "", mergeBlock);
+
+    Constant* true_const = ConstantInt::getTrue(Type::getInt1Ty(getGlobalContext()));
+
+    phiNode->addIncoming(true_const, condBlock);
+    phiNode->addIncoming(intl, splitBlock);
+
+    BasicBlock * entryBlock = BasicBlock::Create(getGlobalContext(), "entry", currentBlock()->getParent());
+    updateBlock(entryBlock);
+
+    CastInst * res = new ZExtInst(phiNode, IntegerType::get(getGlobalContext(), 8), "res", currentBlock());
+    return res;
 }
 
 void LLVMCodeGen::push(Value *value)

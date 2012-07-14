@@ -1,5 +1,9 @@
 def func(int k) : boolean
-    l = false
-
+	x = true
+	y = false
+	zz = false
+    l = x || y
+	ll = (x && y) || zz
+	
     return l
 end

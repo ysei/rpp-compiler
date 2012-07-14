@@ -94,7 +94,8 @@ ExpressionNode *ASTBuilder::createExpression(pANTLR3_BASE_TREE node)
         std::string nodeString(getNodeString(node));
 
         if(nodeString == "+" || nodeString == "-" || nodeString == "*" || nodeString == "/"
-                || nodeString == "<" || nodeString == ">" || nodeString == "==") {
+                || nodeString == "<" || nodeString == ">" || nodeString == "==" || nodeString == "&&"
+                || nodeString == "||") {
             if(getNodeChildCount(node) == 1) {
                 std::cout << "Error: unary operations currently not supported" << std::endl;
                 return NULL;

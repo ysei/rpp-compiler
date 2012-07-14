@@ -56,15 +56,22 @@ void SemanticAnalysis::visit(BinaryOpExpression *node)
     ExpressionNode::Type left = pop();
     ExpressionNode::Type right = pop();
 
-    ExpressionNode::Type combined = ExpressionNode::combineTypes(left, right);
+    if(node->op() == "&&" || node->op() == "||") {
+        if(left == ExpressionNode::Boolean && right == ExpressionNode::Boolean) {
+            push(ExpressionNode::Boolean, ExpressionNode::toString(ExpressionNode::Boolean));
+        } else {
+            std::cerr << "Left or right or both of logical expression is not boolean" << std::endl;
+        }
+        node->setType(ExpressionNode::Boolean);
+    } else {
+        ExpressionNode::Type combined = ExpressionNode::combineTypes(left, right);
 
-    push(combined, ExpressionNode::toString(combined));
-
-    if(combined == ExpressionNode::Invalid) {
-        std::cerr << "Can't convert one type to another" << std::endl;
+        push(combined, ExpressionNode::toString(combined));
+        if(combined == ExpressionNode::Invalid) {
+            std::cerr << "Can't convert one type to another" << std::endl;
+        }
+        node->setType(combined);
     }
-
-    node->setType(combined);
 }
 
 void SemanticAnalysis::visit(MethodCallExpression *node)
