@@ -1,5 +1,5 @@
 def func(int k) : boolean
     l = false
 
-    return 10
+    return l
 end
