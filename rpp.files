@@ -3,7 +3,7 @@ src/ast.cpp
 src/astbuilder.h
 src/astbuilder.cpp
 src/main.cpp
-grammar/rpp.g
+src/rpp.g
 src/rpp.tokens
 src/rppLexer.c
 src/rppLexer.h
