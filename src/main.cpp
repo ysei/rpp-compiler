@@ -1,9 +1,14 @@
+#include <iostream>
 #include "rppcompiler.h"
 
-int main(int /* argc */, char **  /* argv[] */)
+int main(int argc, char ** argv)
 {
-    RppCompiler compiler;
-    compiler.compile("example.rpp");
-
+    if(argc == 1) {
+        std::cerr << "Usage:" << std::endl;
+        std::cerr << "  ./rpp <file.rpp>" << std::endl;
+    } else {
+        RppCompiler compiler;
+        compiler.compile(argv[1]);
+    }
     return 0;
 }

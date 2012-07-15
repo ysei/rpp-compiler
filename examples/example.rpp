@@ -1,9 +1,8 @@
+def defunc(float p, int i) : float
+	return p * i
+end
+
 def func(int k) : boolean
-	x = true
-	y = false
-	zz = false
-    l = x || y
-	ll = (x && y) || zz
-	
-    return l
+    x = defunc(10.0, 5)
+    return false
 end
