@@ -2,7 +2,7 @@ def defunc(float p, int i) : float
 	return p * i
 end
 
-def func(int k) : boolean
-    x = defunc(10.0, 5)
-    return false
+def func(int k) : int
+    x = defunc(10.0, 4)
+    return k + 10
 end

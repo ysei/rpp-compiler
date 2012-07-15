@@ -155,6 +155,7 @@ void LLVMCodeGen::visit(MethodCallExpression *node)
     vector<Value *> arguments;
     for(int i = 0; i < node->arguments().size(); i++) {
         arguments.push_back(pop());
+        reverse(arguments.begin(), arguments.end());
     }
 
     CallInst * callInstr = CallInst::Create(func, makeArrayRef(arguments), "", currentBlock());
