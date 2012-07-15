@@ -1,4 +1,29 @@
-This is my simple toy compiler.
+RPP is a simple compiler of a ruby like language. It generates LLVM code which can be natively executed. It's very limited and it's goal is to show&learn how to use several frameworks together. There is Antlr for parser&lexer, custom AST and LLVM as a back end.
 
-Compile grammar for java:
-antlr -o java-compiler/java/src/org/dubikdev/toycompiler/ Rpp.g
+
+Pre-requisites
+--------------
+
+Antlr 3.3.x is required and <code>antlr.sh</code> script has to be available in the path.
+
+	#!/bin/sh
+	java -jar $PATH_TO_ANTLR/antlr-3.3-complete.jar $1 $2 $3 $4 $5
+
+LLVM v3.0 is required. On Mac OS X Lion it could be installed:
+
+	brew install llvm
+
+
+Compilation
+-----------
+
+To compile type:
+
+	make
+
+<code>bin/</code> will contain <code>rpp</code>
+
+License
+-------
+
+Public domain.
