@@ -1,4 +1,4 @@
-RPP is a simple compiler of a ruby like language. It generates LLVM code which can be natively executed. It's very limited and it's goal is to show&learn how to use several frameworks together. There is Antlr for parser&lexer, custom AST and LLVM as a back end.
+RPP is a simple compiler. It generates LLVM code which can be natively executed. It's very limited and it's goal is to show&learn how to use several frameworks together. There is Antlr for parser&lexer, custom AST and LLVM as a back end.
 
 
 Pre-requisites
